@@ -1,5 +1,4 @@
 # klib
 
-[![Release](https://jitpack.io/v/elifarley/klib.svg)]
-(https://jitpack.io/#elifarley/klib)
-
+[![Release](https://jitpack.io/v/com.orgecc/klib.svg)]
+(https://jitpack.io/#com.orgecc/klib)
