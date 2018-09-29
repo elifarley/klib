@@ -15,6 +15,13 @@
     <artifactId>klib-db</artifactId>
     <name>[klib-db] Database</name>
 
+    <repositories>
+        <repository>
+            <id>JCenter</id>
+            <url>http://jcenter.bintray.com/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <dependency>
