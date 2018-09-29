@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--parent>
+      <groupId>com.orgecc</groupId>
+      <artifactId>orgecc-root</artifactId>
+      <version>default-SNAPSHOT</version>
+    </parent-->
+
+    <!-- see https://github.com/jitpack/jitpack.io/blob/master/BUILDING.md#multi-module-projects -->
+    <groupId>com.orgecc.klib</groupId>
+    <artifactId>klib-root</artifactId>
+    <version>default-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>klib</name>
+    <inceptionYear>2018</inceptionYear>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>releases</name>
+            <url>https://jfrog.io/svhk-libs</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>snapshots</name>
+            <url>https://jfrog.io/svhk-libs</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- See https://bitbucket.org/snippets/git-EkGBp -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <kotlin.version>1.2.61</kotlin.version>
+        <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <koin.version>0.9.3</koin.version>
+        <slf4j.version>1.8.0-beta2</slf4j.version>
+        <logback.version>1.3.0-alpha4</logback.version>
+        <http4k.version>3.37.1</http4k.version>
+        <jsoniter.version>0.9.22</jsoniter.version>
+        <junit.version>4.12</junit.version>
+
+        <sonar.jacoco.itReportPath>target/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
+        <sonar.surefire.reportsPath>target/surefire-reports</sonar.surefire.reportsPath>
+        <sonar.jacoco.reportPath>target/jacoco.exec</sonar.jacoco.reportPath>
+    </properties>
+
+    <modules>
+        <module>base</module>
+        <module>db</module>
+        <module>json</module>
+        <module>http4k</module>
+    </modules>
+
+    <organization>
+        <name>orgecc</name>
+    </organization>
+
+    <build>
+
+        <defaultGoal>install</defaultGoal>
+
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+
+        <pluginManagement>
+            <plugins>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.9.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/jaxb/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>hu.advancedweb</groupId>
+                <artifactId>scott-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin> <!-- See https://stackoverflow.com/questions/36970384/surefire-is-not-picking-up-junit-5-tests -->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version> <!-- See https://github.com/junit-team/junit5/issues/809 -->
+                <configuration>
+                    <forkCount>1C</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <workingDirectory>FORK_DIRECTORY_${surefire.forkNumber}</workingDirectory>
+                    <argLine>-Xmx200m</argLine>
+                    <includes>
+                        <include>%regex[.*(Tests|IT)\.class]</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <json-unit.libraries>gson</json-unit.libraries>
+                        <testFailureIgnore>true</testFailureIgnore>
+                    </systemPropertyVariables>
+                    <environmentVariables>
+                        <LOGBACK_JSON>true</LOGBACK_JSON>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-core</artifactId>
+                <version>0.22.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlinx</groupId>
+                <artifactId>kotlinx-coroutines-jdk8</artifactId>
+                <version>0.22.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.mail</groupId>
+                        <artifactId>javax.mail</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test-junit</artifactId>
+                <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- See https://github.com/joel-costigliola/assertj-examples/ -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.9.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>net.javacrumbs.json-unit</groupId>
+                <artifactId>json-unit</artifactId>
+                <version>1.28.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.json-unit</groupId>
+                <artifactId>json-unit-fluent</artifactId>
+                <version>1.28.2</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+

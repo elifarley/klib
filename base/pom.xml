@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.orgecc.klib</groupId>
+        <artifactId>klib-root</artifactId>
+        <version>default-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>klib-base</artifactId>
+    <name>[klib-base] Base lib</name>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.uncommons.maths/uncommons-maths -->
+        <dependency>
+            <groupId>org.uncommons.maths</groupId>
+            <artifactId>uncommons-maths</artifactId>
+            <version>1.2.2a</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>jfree</groupId>
+                    <artifactId>jfreechart</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jfree</groupId>
+                    <artifactId>jcommon</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+<!--
+        <dependency>
+            <groupId>com.github.kotlin-graphics</groupId>
+            <artifactId>kotlin-unsigned</artifactId>
+            <version>v2.1</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+-->
+
+    </dependencies>
+
+</project>
+

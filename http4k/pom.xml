@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.orgecc.klib</groupId>
+        <artifactId>klib-root</artifactId>
+        <version>default-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>klib-http4k</artifactId>
+    <name>[klib-http4k] http4k</name>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.orgecc.klib</groupId>
+            <artifactId>klib-json</artifactId>
+            <version>default-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-core</artifactId>
+            <version>${http4k.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-contract</artifactId>
+            <version>${http4k.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-format-gson</artifactId>
+            <version>${http4k.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.json-unit</groupId>
+            <artifactId>json-unit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.json-unit</groupId>
+            <artifactId>json-unit-fluent</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
