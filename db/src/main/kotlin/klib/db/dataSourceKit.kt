@@ -5,11 +5,11 @@ import jdbc.HikariDataSourceFactory
 import jdbc.ISimpleDataSourceFactory
 import klib.base.trimToDefault
 import org.koin.dsl.module.Module
-import org.koin.dsl.module.applicationContext
+import org.koin.dsl.module.module
 
-val dsModule: Module = applicationContext {
+val dsModule: Module = module {
 
-    bean {
+    single {
         HikariDataSourceFactory(
                 getProperty("db.driver"),
                 getProperty("db.prefix"),
@@ -20,7 +20,7 @@ val dsModule: Module = applicationContext {
         ) as ISimpleDataSourceFactory
     }
 
-    bean {
+    single {
         FlywayDataSourceFactory(get<ISimpleDataSourceFactory>(),
                 System.getenv("DB_ADMIN_LOGIN").trimToDefault(getProperty("db.admin.login")),
                 System.getenv("DB_ADMIN_PW")
