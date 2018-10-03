@@ -19,9 +19,9 @@ object OPB58Codec {
 
     private val BIGINT_BYTE_MAXVAL = BigInteger.valueOf(255)
 
-    private val BIGINT_LONG_MAXVAL = BigInteger.valueOf(java.lang.Long.MAX_VALUE)
+    val BIGINT_LONG_MAXVAL = BigInteger.valueOf(java.lang.Long.MAX_VALUE)
 
-    private val BIGINT_INTEGER_MAXVAL = BigInteger.valueOf(Integer.MAX_VALUE.toLong())
+    val BIGINT_INTEGER_MAXVAL = BigInteger.valueOf(Integer.MAX_VALUE.toLong())
 
     val INTEGER_MAX_VALUE = "3FkQ47"
 
