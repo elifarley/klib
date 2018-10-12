@@ -49,14 +49,15 @@ object JsonIterCodec {
     }
 
     // Unwrapper / Deserializer
-    private val simpleOjbectDecoder: (JsonIterator) -> SimpleObject<Any> = { iter ->
+    private val simpleOjbectDecoder: (JsonIterator) -> SimpleObject<Any?> = { iter ->
         try {
             iter.readAny().asMap().let { root ->
-                val id = root["id"]!!
+                val id = root["id"]
                 val created = root["created"]?.`as`(ZonedDateTime::class.java)
                 val updated = root["updated"]?.`as`(ZonedDateTime::class.java)
                 root.remove("id"); root.remove("created"); root.remove("updated")
-                SimpleObject(when (id.valueType()) {
+                SimpleObject(when (id?.valueType()) {
+                    null, ValueType.NULL -> null
                     ValueType.NUMBER -> id.toLong()
                     else -> id.toString()
                 }, root, created, updated)
