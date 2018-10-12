@@ -31,8 +31,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    rtMaven.resolver server: aServer, releaseRepo: 'svhk-libs-all', snapshotRepo: 'svhk-libs-all'
-                    rtMaven.deployer server: aServer, releaseRepo: 'svhk-libs', snapshotRepo: 'svhk-libs'
+                    rtMaven.resolver server: aServer, releaseRepo: 'my-libs-all', snapshotRepo: 'my-libs-all'
+                    rtMaven.deployer server: aServer, releaseRepo: 'my-libs', snapshotRepo: 'my-libs'
                     rtMaven.tool = 'Default'
                     rtMaven.opts = '-Xms64m -Xmx64m -Djson-unit.libraries=gson'
                     buildInfo = rtMaven.run pom: 'pom.xml', goals: 'install'
