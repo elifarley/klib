@@ -56,12 +56,37 @@ class HikariDataSourceFactory(jdbcDriver: String, jdbcPrefix: String, hostAndPor
 /**
  * @managedSchemas Default is [parent.login, "public"]. If set to [""], then [parent.login] will be used
  */
-class FlywayDataSourceFactory(val parent: ISimpleDataSourceFactory, val adminLogin: String, private var adminPw: String,
-                              val sqlLocations: Array<out String> = arrayOf("flyway"),
-                              vararg managedSchemas: String = arrayOf(parent.login, "public")
+class FlywayDataSourceFactory private constructor(
+        val parent: ISimpleDataSourceFactory, val adminLogin: String, private var adminPw: String,
+        val sqlLocations: Array<out String> = arrayOf("flyway"),
+        vararg managedSchemas: String
 ) : ISimpleDataSourceFactory by parent {
 
-    companion object : WithLogging()
+    enum class MANAGED_SCHEMA { USER, PUBLIC, USER_AND_PUBLIC }
+
+    companion object : WithLogging() {
+
+        fun withSchema(
+                parent: ISimpleDataSourceFactory, adminLogin: String, adminPw: String,
+                managedSchemaType: MANAGED_SCHEMA, sqlLocations: Array<out String> = arrayOf("flyway")
+        ) =
+                FlywayDataSourceFactory(parent, adminLogin, adminPw, sqlLocations, *when (managedSchemaType) {
+                    MANAGED_SCHEMA.USER -> arrayOf("")
+                    MANAGED_SCHEMA.PUBLIC -> arrayOf("public")
+                    MANAGED_SCHEMA.USER_AND_PUBLIC -> arrayOf(parent.login, "public")
+                })
+
+        /**
+         * @managedSchemas Default is [parent.login, "public"]. If set to [""], then [parent.login] will be used
+         */
+        fun withCustomSchemas(
+                parent: ISimpleDataSourceFactory, adminLogin: String, adminPw: String,
+                sqlLocations: Array<out String> = arrayOf("flyway"),
+                vararg managedSchemas: String
+        ) =
+                FlywayDataSourceFactory(parent, adminLogin, adminPw, sqlLocations, *managedSchemas)
+
+    }
 
     val _managedSchemas = when {
         managedSchemas.contentEquals(arrayOf("")) -> arrayOf(parent.login)
@@ -83,6 +108,10 @@ class FlywayDataSourceFactory(val parent: ISimpleDataSourceFactory, val adminLog
         adminPw = ""
         try {
             Flyway().apply {
+
+                LOG.warn("[handleMigrations] Configuring Flyway with schemas={}; locations={}",
+                        _managedSchemas, sqlLocations
+                )
 
                 dataSource = adminDS
                 setSchemas(*_managedSchemas)

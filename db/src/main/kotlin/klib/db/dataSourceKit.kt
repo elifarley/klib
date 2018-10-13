@@ -1,6 +1,7 @@
 package klib.db
 
 import jdbc.FlywayDataSourceFactory
+import jdbc.FlywayDataSourceFactory.MANAGED_SCHEMA
 import jdbc.HikariDataSourceFactory
 import jdbc.ISimpleDataSourceFactory
 import klib.base.trimToDefault
@@ -20,11 +21,11 @@ val dsModule: Module = module {
         ) as ISimpleDataSourceFactory
     }
 
-    single {
-        FlywayDataSourceFactory(get<ISimpleDataSourceFactory>(),
+    single { (managedSchemaType: MANAGED_SCHEMA) ->
+        FlywayDataSourceFactory.withSchema(get<ISimpleDataSourceFactory>(),
                 System.getenv("DB_ADMIN_LOGIN").trimToDefault(getProperty("db.admin.login")),
-                System.getenv("DB_ADMIN_PW")
-        ).newDataSource
+                System.getenv("DB_ADMIN_PW"),
+                managedSchemaType).newDataSource
     }
 
 }
