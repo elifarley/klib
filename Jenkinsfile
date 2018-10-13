@@ -24,7 +24,6 @@ pipeline {
                 script { sh '''
                   echo "PATH: ${PATH}"
                   echo "M2_HOME: ${M2_HOME}"
-                  hg --config extensions.purge= clean --all && hg up -C -r .
                 ''' }
             }
         }
