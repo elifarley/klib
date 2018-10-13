@@ -1,8 +1,8 @@
 #!groovy
 
-def aServer = Artifactory.server('jfrog')
-def rtMaven = Artifactory.newMavenBuild()
-def buildInfo
+//def aServer = Artifactory.server('jfrog')
+//def rtMaven = Artifactory.newMavenBuild()
+//def buildInfo
 
 pipeline {
 
@@ -24,19 +24,21 @@ pipeline {
                 script { sh '''
                   echo "PATH: ${PATH}"
                   echo "M2_HOME: ${M2_HOME}"
+                  hg --config extensions.purge= clean --all && hg up -C -r .
                 ''' }
             }
         }
 
         stage('Build') {
             steps {
-                script {
-                    rtMaven.resolver server: aServer, releaseRepo: 'my-libs-all', snapshotRepo: 'my-libs-all'
-                    rtMaven.deployer server: aServer, releaseRepo: 'my-libs', snapshotRepo: 'my-libs'
-                    rtMaven.tool = 'Default'
-                    rtMaven.opts = '-Xms64m -Xmx64m -Djson-unit.libraries=gson'
-                    buildInfo = rtMaven.run pom: 'pom.xml', goals: 'install'
-                }
+                sh 'mvn install -U -Dmaven.test.failure.ignore=false'
+//                script {
+//                    rtMaven.resolver server: aServer, releaseRepo: 'my-libs-all', snapshotRepo: 'my-libs-all'
+//                    rtMaven.deployer server: aServer, releaseRepo: 'my-libs', snapshotRepo: 'my-libs'
+//                    rtMaven.tool = 'Default'
+//                    rtMaven.opts = '-Xms64m -Xmx64m -Djson-unit.libraries=gson'
+//                    buildInfo = rtMaven.run pom: 'pom.xml', goals: 'install'
+//                }
             }
             post {
                 always {
@@ -45,13 +47,13 @@ pipeline {
             }
         }
 
-        stage('Artifactory Publish') {
-            steps {
-                script {
-                    aServer.publishBuildInfo buildInfo
-                }
-            }
-        }
+//        stage('Artifactory Publish') {
+//            steps {
+//                script {
+//                    aServer.publishBuildInfo buildInfo
+//                }
+//            }
+//        }
 
     }
 }
