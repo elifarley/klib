@@ -15,6 +15,7 @@ fun SQLQuery.Companion.bySimpleObjectAttr(attr: String, value: Any?) = SQLQuery.
 fun SQLQuery.Companion.asSimpleObjectUpdateQuery(where: String, attrs: String, vararg vparams: Any?) = SQLQuery(false,
         "update %s set attrs = attrs || cast(? as JSONB) where $where", attrs, *vparams)
 
+// TODO Rename (not really related to simple object)
 fun SQLQuery.asSimpleObjectUpdateQueryAction(table: String? = null) = queryOf(sql.format(table), *params).asUpdate
 
 class SimpleObjectSessionFactory<PK>(ds: DataSource, val table: String) : SimpleSessionFactory<SimpleObject<PK>, PK>(ds) {
@@ -29,7 +30,11 @@ class SimpleObjectSession<PK>(s: Session, table: String) : SimpleSession<SimpleO
         SimpleObject(row.any("id") as PK,
                 JsonIterator.deserialize(row.string("attrs")).asMap(),
                 row.zonedDateTime("created"),
-                try { row.zonedDateTime("updated") } catch (e: PSQLException) { null }
+                try {
+                    row.zonedDateTime("updated")
+                } catch (e: PSQLException) {
+                    null
+                }
         )
     }
 
@@ -63,6 +68,10 @@ class SimpleObjectSession<PK>(s: Session, table: String) : SimpleSession<SimpleO
         throw e
 
     } // insert
+
+    override fun update(obj: SimpleObject<PK>): Long = JsonStream.serialize(obj.attrs).let { attrs ->
+        update(SQLQuery.asSimpleObjectUpdateQuery("id = ?", attrs, obj.id))
+    }
 
     override fun update(query: SimpleQuery): Long = (query as SQLQuery).let { q ->
         try {

@@ -13,6 +13,7 @@ interface SimpleRepository<T, PK> {
     fun find(id: PK): T?
     fun findAll(query: SimpleQuery? = null): Sequence<T>
     fun insert(obj: T): PK
+    fun update(obj: T): Long
     fun update(query: SimpleQuery): Long
     fun delete(id: PK): Boolean
     fun deleteAll(query: SimpleQuery): Long

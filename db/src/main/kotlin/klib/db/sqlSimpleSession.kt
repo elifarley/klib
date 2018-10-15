@@ -69,7 +69,11 @@ abstract class SimpleSession<T, PK>(protected val s: Session, protected val tabl
         }
     }
 
-    override fun update(query: SimpleQuery): Long = throw IllegalArgumentException()
+    override fun update(query: SimpleQuery): Long = (query as SQLQuery).let { q ->
+        q.asKQuery(table).asUpdate.let {
+            s.run(it).toLong()
+        }
+    }
 
     override fun toString(): String {
         return "repo($table)"
@@ -98,6 +102,9 @@ open class SimpleObjectRepository<PK>(protected val sf: SimpleObjectSessionFacto
         r.insert(obj as SimpleObject<PK>)
     }
 
+    override fun update(obj: SimpleObject<PK?>): Long = sf.newRepoSession { r ->
+        r.update(obj as SimpleObject<PK>)
+    }
     override fun update(query: SimpleQuery): Long = sf.newRepoSession { r ->
         r.update(query)
     }
