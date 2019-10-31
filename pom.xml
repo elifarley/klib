@@ -17,7 +17,31 @@
     <version>master-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>klib</name>
+    <description>Kotlin library with miscellaneous functions</description>
+    <url>https://github.com/elifarley/klib</url>
     <inceptionYear>2018</inceptionYear>
+
+    <developers>
+        <developer>
+            <name>Elifarley Cruz</name>
+            <email>elifarley@gmail.com</email>
+            <organization>orgecc</organization>
+            <organizationUrl>https://github.com/elifarley/</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/elifarley/klib.git</connection>
+        <developerConnection>scm:git:ssh://github.com:elifarley/klib.git</developerConnection>
+        <url>http://github.com/elifarley/klib/tree/master</url>
+    </scm>
 
     <distributionManagement>
         <repository>
@@ -36,6 +60,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <dokka.version>0.10.0</dokka.version>
         <kotlin.version>1.3.50</kotlin.version>
         <kotlin.compiler.languageVersion>1.3</kotlin.compiler.languageVersion>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
@@ -87,17 +112,40 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.3</version>
+                    <artifactId>maven-jar-plugin</artifactId>
                     <executions>
                         <execution>
-                            <id>attach-javadocs</id>
+                            <id>empty-javadoc-jar</id>
+                            <phase>package</phase>
                             <goals>
                                 <goal>jar</goal>
                             </goals>
+                            <configuration>
+                                <classifier>javadoc</classifier>
+                                <classesDirectory>${basedir}/javadoc</classesDirectory>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.jetbrains.dokka</groupId>
+                    <artifactId>dokka-maven-plugin</artifactId>
+                    <version>${dokka.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>pre-site</phase>
+                            <goals>
+                                <goal>javadocJar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skip>false</skip>
+                        <jdkVersion>8</jdkVersion>
+                    </configuration>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
