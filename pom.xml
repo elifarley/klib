@@ -14,7 +14,7 @@
     <!-- see https://github.com/jitpack/jitpack.io/blob/master/BUILDING.md#multi-module-projects -->
     <groupId>com.orgecc.klib</groupId>
     <artifactId>klib-root</artifactId>
-    <version>master-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>klib</name>
     <description>Kotlin library with miscellaneous functions</description>
@@ -44,15 +44,9 @@
     </scm>
 
     <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>releases</name>
-            <url>https://jfrog.io/svhk-libs</url>
-        </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <name>snapshots</name>
-            <url>https://jfrog.io/svhk-libs</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -230,6 +224,33 @@
                     <environmentVariables>
                         <LOGBACK_JSON>true</LOGBACK_JSON>
                     </environmentVariables>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
 
