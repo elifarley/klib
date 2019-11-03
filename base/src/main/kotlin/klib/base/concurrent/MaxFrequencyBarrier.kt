@@ -5,13 +5,9 @@ interface EventBarrier {
 }
 
 class MaxFrequencyBarrier
-private constructor (itemsPerSecond: Double) : EventBarrier {
+private constructor(itemsPerSecond: Double) : EventBarrier {
 
-    val millisStep: Int
-
-    init {
-        millisStep = (1000 / itemsPerSecond).toInt()
-    }
+    private val millisStep: Int = (1e3 / itemsPerSecond).toInt()
 
     override fun await(itemCount: Int) = await(millisStep, itemCount)
 
@@ -19,7 +15,7 @@ private constructor (itemsPerSecond: Double) : EventBarrier {
 
         fun newInstance(itemsPerSecond: Double = 1e0): EventBarrier = MaxFrequencyBarrier(itemsPerSecond)
 
-        var lastMillis = System.currentTimeMillis()
+        private var lastMillis = System.currentTimeMillis()
 
         // TODO Return max items that can be processed
         @Synchronized
