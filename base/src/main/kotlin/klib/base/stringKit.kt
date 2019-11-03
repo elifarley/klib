@@ -1,6 +1,6 @@
 package klib.base
 
-inline fun String.prefixWith(prefix: String?) = if (prefix == null) this else prefix + this
+inline fun String.prefixWith(prefix: String?) = prefix?.plus(this) ?: this
 
 fun Any?.fmt(format: String, defaultWhenNull: String = ""): String = this?.let {
     format.format(this)
