@@ -12,14 +12,30 @@ import java.util.concurrent.ThreadLocalRandom
 
 inline fun Any?.nullIf(nullValue: Any) = if (this == nullValue) null else this
 
+/**
+ * Calls the specified function [block] with `this` value as its argument and always returns Unit.
+ */
+inline fun <T> T.unit(block: (T) -> Any?) {
+    block(this)
+    Unit
+}
+
+/**
+ * Calls the specified function [block] with no argument and always returns Unit.
+ */
+inline fun unit(block: () -> Any?) {
+    block()
+    Unit
+}
+
 val Throwable.simpleMessage get() = "(${javaClass.simpleName}) ${message.trimToDefault(toString())}"
 
 inline operator fun <T> Boolean?.rem(block: () -> T): T? = this?.let { if (this) block() else null }
 
 //fun StopWatch.stopIfRunning(): StopWatch { if (!isStopped) stop(); return this }
 
-fun Random.nextInt(range: IntRange): Int = if (range.start == range.last) range.start
-  else range.start + nextInt(range.last - range.start)
+fun Random.nextInt(range: IntRange): Int = if (range.first == range.last) range.first
+    else range.first + nextInt(range.last - range.first)
 
 inline fun rnd(range: IntRange = 0..Int.MAX_VALUE) = ThreadLocalRandom.current().nextInt(range)
 
