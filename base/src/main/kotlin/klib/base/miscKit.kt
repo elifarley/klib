@@ -13,19 +13,26 @@ import java.util.concurrent.ThreadLocalRandom
 inline fun Any?.nullIf(nullValue: Any) = if (this == nullValue) null else this
 
 /**
- * Calls the specified function [block] with `this` value as its argument and always returns Unit.
- */
-inline fun <T> T.unit(block: (T) -> Any?) {
-    block(this)
-    Unit
-}
-
-/**
  * Calls the specified function [block] with no argument and always returns Unit.
  */
 inline fun unit(block: () -> Any?) {
     block()
-    Unit
+}
+
+/**
+ * Calls the specified function [block] with `this` value as its argument and always returns Unit.
+ */
+inline fun <T> T.unit(block: (T) -> Any?) {
+    block(this)
+}
+
+val Any?.unit inline get() = Unit
+
+fun aa(a: Int?) {
+    val b = a?.unit {
+        null
+    } ?: 0
+    println(b)
 }
 
 val Throwable.simpleMessage get() = "(${javaClass.simpleName}) ${message.trimToDefault(toString())}"
