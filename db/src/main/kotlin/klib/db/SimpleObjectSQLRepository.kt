@@ -53,7 +53,7 @@ class SimpleObjectSession<PK>(s: Session, table: String) : SimpleSession<SimpleO
 
                 } catch (e: Exception) {
                     val msg = "[insert] Unable to obtain generated ID ($e) [SQL: $sql]"
-                    LOG.error(msg, e)
+                    log.error(msg, e)
                     throw NullPointerException(msg).also {
                         it.initCause(e)
                     }
@@ -68,7 +68,7 @@ class SimpleObjectSession<PK>(s: Session, table: String) : SimpleSession<SimpleO
         }
 
     } catch (e: Exception) {
-        LOG.error("[insert] Unable to insert: $obj", e)
+        log.error("[insert] Unable to insert: $obj", e)
         throw e
 
     } // insert
@@ -84,7 +84,7 @@ class SimpleObjectSession<PK>(s: Session, table: String) : SimpleSession<SimpleO
             }
 
         } catch (e: Exception) {
-            LOG.error("[update] Unable to update: $q", e)
+            log.error("[update] Unable to update: $q", e)
             throw e
         }
     }

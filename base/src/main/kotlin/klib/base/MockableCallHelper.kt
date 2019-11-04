@@ -131,7 +131,7 @@ abstract class MockableCallHelper<R>(private val mockFilePropName: String) : Moc
         }
 
         val callId = Integer.toHexString(rnd())!!.also { callId = it }
-        LOG.error(
+        log.error(
             "[MOCK: $mockName] Expecting call... [RESULT: ${
             result?.toString()?.replace("\"", "")
             }${exception?.let { "; EXCEPTION: ${exception.simpleMessage}" }.orEmpty()}]"
@@ -154,7 +154,7 @@ abstract class MockableCallHelper<R>(private val mockFilePropName: String) : Moc
         mockException?.let { mockResult; throw mockException as Exception } ?: if (_mockResult.valueIsSet) {
             callParams = params.first() as? Array<out Any?> ?: arrayOf()
             mockResult.also {
-                LOG.error(
+                log.error(
                     "[MOCK #${_mockResult.readCount}: $mockName] ${callParamsAsStr}Returning object: ${
                     it?.toString()?.replace("\"", "")
                     }"
@@ -167,7 +167,7 @@ abstract class MockableCallHelper<R>(private val mockFilePropName: String) : Moc
                 return realCall()
             }
 
-            LOG.error("[MOCK: $mockName] ${callParamsAsStr}Reading mocked response from '$mockFilePath'...")
+            log.error("[MOCK: $mockName] ${callParamsAsStr}Reading mocked response from '$mockFilePath'...")
             importResultFromFile(mockFilePath)
         }
 

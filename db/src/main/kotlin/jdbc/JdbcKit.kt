@@ -45,7 +45,7 @@ class HikariDataSourceFactory(
 
         username = login
         password = pw
-        LOG.warn(
+        log.warn(
             "[newDataSource] Creating datasource $username:${(login to pw).md5Sum}" +
                     " @ $jdbcUrlString"
         )
@@ -117,7 +117,7 @@ class FlywayDataSourceFactory private constructor(
         try {
             Flyway().apply {
 
-                LOG.warn(
+                log.warn(
                     "[handleMigrations] Configuring Flyway with schemas={}; locations={}",
                     _managedSchemas, sqlLocations
                 )
@@ -135,11 +135,11 @@ class FlywayDataSourceFactory private constructor(
                     val deleteAll = System.getenv("FLYWAY_DELETE_ALL")
                         .trimToDefault(System.getProperty("flyway.delete-all", "false")).toBoolean()
                     if (deleteAll) {
-                        LOG.error("[handleMigrations] flyway.delete-all|FLYWAY_DELETE_ALL: TRUE; Cleaning the database")
+                        log.error("[handleMigrations] flyway.delete-all|FLYWAY_DELETE_ALL: TRUE; Cleaning the database")
                         clean()
                     }
 
-                    LOG.warn("[handleMigrations] Migrating...")
+                    log.warn("[handleMigrations] Migrating...")
                     migrate()
                 }
 

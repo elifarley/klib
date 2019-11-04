@@ -37,7 +37,7 @@ inline fun <R : Any> R.lazyLogger(): Lazy<Logger> = lazy { logger(this.javaClass
  * Usage example: `companion object: WithLogging() {}`
  */
 abstract class WithLogging {
-    val LOG: Logger by lazyLogger()
+    val log: Logger by lazyLogger()
 }
 
 class MDCCloseable : Closeable {
