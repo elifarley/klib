@@ -10,7 +10,7 @@ import java.security.MessageDigest
  */
 
 inline fun File.digestInputStream(digest: MessageDigest = MessageDigest.getInstance("MD5")) =
-        DigestInputStream(this.inputStream(), digest)
+    DigestInputStream(this.inputStream(), digest)
 
 inline fun File.digestOutputStream(digest: MessageDigest = MessageDigest.getInstance("MD5")) =
-        DigestOutputStream(this.outputStream(), digest)
+    DigestOutputStream(this.outputStream(), digest)

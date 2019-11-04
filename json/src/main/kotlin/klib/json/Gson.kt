@@ -50,9 +50,11 @@ val zonedDateTimeDeserializer = JsonDeserializer<ZonedDateTime?> { value, type, 
     when {
         value.isJsonNull -> null
         value.isJsonPrimitive && value.asJsonPrimitive.isString ->
-            ZonedDateTime.from(DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(
+            ZonedDateTime.from(
+                DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(
                     value.asJsonPrimitive.asString
-            ))
+                )
+            )
         else -> throw IllegalArgumentException(value.toString())
     }
 }

@@ -6,9 +6,10 @@ import java.security.DigestInputStream
 /**
  * Created by elifarley on 05/12/16.
  */
-abstract class MDReaderInputStreamAdapter<out D>(protected val mdi: DigestInputStream) : IOWithDigest.MDReader(mdi.messageDigest) {
+abstract class MDReaderInputStreamAdapter<out D>(protected val mdi: DigestInputStream) :
+    IOWithDigest.MDReader(mdi.messageDigest) {
 
-    private enum class State { HEADER, DETAIL, TRAILER, DONE}
+    private enum class State { HEADER, DETAIL, TRAILER, DONE }
 
     private var state: State = State.HEADER
 
@@ -20,12 +21,19 @@ abstract class MDReaderInputStreamAdapter<out D>(protected val mdi: DigestInputS
 
     override fun read(): Any? = when (state) {
 
-        State.HEADER -> { state = State.DETAIL; detailIterator = detailIterable.iterator(); lineCount++; header }
+        State.HEADER -> {
+            state = State.DETAIL; detailIterator = detailIterable.iterator(); lineCount++; header
+        }
 
-        State.DETAIL -> if (detailIterator.hasNext()) { lineCount++; detailIterator.next() }
-                        else { state = State.TRAILER; ++lineCount }
+        State.DETAIL -> if (detailIterator.hasNext()) {
+            lineCount++; detailIterator.next()
+        } else {
+            state = State.TRAILER; ++lineCount
+        }
 
-        State.TRAILER -> { state = State.DONE; close(); null }
+        State.TRAILER -> {
+            state = State.DONE; close(); null
+        }
 
         State.DONE -> throw EOFException()
 

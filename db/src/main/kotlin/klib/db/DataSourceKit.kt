@@ -12,20 +12,22 @@ val dsModule: Module = module {
 
     single {
         HikariDataSourceFactory(
-                getProperty("db.driver"),
-                getProperty("db.prefix"),
-                System.getenv("DB_HOST").trimToDefault(getProperty("db.host-and-port")),
-                System.getenv("DB_NAME").trimToDefault(getProperty("db.name")),
-                System.getenv("DB_LOGIN").trimToDefault(getProperty("db.login")),
-                System.getenv("DB_PW")
+            getProperty("db.driver"),
+            getProperty("db.prefix"),
+            System.getenv("DB_HOST").trimToDefault(getProperty("db.host-and-port")),
+            System.getenv("DB_NAME").trimToDefault(getProperty("db.name")),
+            System.getenv("DB_LOGIN").trimToDefault(getProperty("db.login")),
+            System.getenv("DB_PW")
         ) as ISimpleDataSourceFactory
     }
 
     single { (managedSchemaType: MANAGED_SCHEMA) ->
-        FlywayDataSourceFactory.withSchema(get<ISimpleDataSourceFactory>(),
-                System.getenv("DB_ADMIN_LOGIN").trimToDefault(getProperty("db.admin.login")),
-                System.getenv("DB_ADMIN_PW"),
-                managedSchemaType).newDataSource
+        FlywayDataSourceFactory.withSchema(
+            get<ISimpleDataSourceFactory>(),
+            System.getenv("DB_ADMIN_LOGIN").trimToDefault(getProperty("db.admin.login")),
+            System.getenv("DB_ADMIN_PW"),
+            managedSchemaType
+        ).newDataSource
     }
 
 }

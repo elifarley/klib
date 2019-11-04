@@ -15,7 +15,9 @@ import java.time.format.DateTimeFormatter
 class SimpleObjectTests {
 
     companion object {
-        @BeforeClass @JvmStatic fun beforeClass() {
+        @BeforeClass
+        @JvmStatic
+        fun beforeClass() {
             JsonIterCodec.registerUtcIsoZonedDateTime()
             JsonIterCodec.registerSimpleObject()
         }
@@ -24,26 +26,32 @@ class SimpleObjectTests {
     private val now = ZonedDateTime.now()
 
     private val expectedJsonStr = """
-                {"id": ${Long.MIN_VALUE}, "created": "${DateTimeFormatter.ISO_ZONED_DATE_TIME.format(now)}", "updated": "${DateTimeFormatter.ISO_ZONED_DATE_TIME.format(now)}",
+                {"id": ${Long.MIN_VALUE}, "created": "${DateTimeFormatter.ISO_ZONED_DATE_TIME.format(now)}", "updated": "${DateTimeFormatter.ISO_ZONED_DATE_TIME.format(
+        now
+    )}",
                    "misc": {"num1": 5, "ar": [1, "2", {}], "ob": {"o1": "o1val"}},
                    "email": "em@il.com"
                  }
                 """
-    private val expectedSimpleObject = SimpleObject(Long.MIN_VALUE,
-            mapOf(
-            "misc" to JsonIterator.deserialize("""
+    private val expectedSimpleObject = SimpleObject(
+        Long.MIN_VALUE,
+        mapOf(
+            "misc" to JsonIterator.deserialize(
+                """
                 {"num1": 5, "ar": [1, "2", {}], "ob": {"o1": "o1val"}}
-                """),
+                """
+            ),
             "email" to JsonIterator.deserialize("\"em@il.com\"")
-    ),
-            now, now)
+        ),
+        now, now
+    )
 
     @Before
-    fun before(){
+    fun before() {
     }
 
     @After
-    fun after(){
+    fun after() {
     }
 
     @Test
@@ -63,8 +71,7 @@ class SimpleObjectTests {
 
         println("TO string: $actual")
         JsonFluentAssert.assertThatJson(actual)
-                .isEqualTo(expectedJsonStr)
-
+            .isEqualTo(expectedJsonStr)
     }
 
     @Test
@@ -77,8 +84,6 @@ class SimpleObjectTests {
 
         println("TO Wrapped: $actual")
         JsonFluentAssert.assertThatJson(actual)
-                .isEqualTo(expectedJsonStr)
-
+            .isEqualTo(expectedJsonStr)
     }
-
 }

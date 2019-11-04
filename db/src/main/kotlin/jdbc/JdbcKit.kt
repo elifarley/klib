@@ -16,14 +16,18 @@ interface ISimpleDataSourceFactory {
     fun with(login: String, pw: String): DataSource
 }
 
-abstract class SimpleDataSourceFactory(val jdbcDriver: String, jdbcPrefix: String, hostAndPort: String, dbName: String,
-                                       override val login: String, protected val pw: String) : ISimpleDataSourceFactory {
+abstract class SimpleDataSourceFactory(
+    val jdbcDriver: String, jdbcPrefix: String, hostAndPort: String, dbName: String,
+    override val login: String, protected val pw: String
+) : ISimpleDataSourceFactory {
     override val jdbcUrlString = "$jdbcPrefix://$hostAndPort/$dbName"
 }
 
-class HikariDataSourceFactory(jdbcDriver: String, jdbcPrefix: String, hostAndPort: String, dbName: String,
-                              login: String, pw: String) :
-        SimpleDataSourceFactory(jdbcDriver, jdbcPrefix, hostAndPort, dbName, login, pw) {
+class HikariDataSourceFactory(
+    jdbcDriver: String, jdbcPrefix: String, hostAndPort: String, dbName: String,
+    login: String, pw: String
+) :
+    SimpleDataSourceFactory(jdbcDriver, jdbcPrefix, hostAndPort, dbName, login, pw) {
 
     companion object : WithLogging()
 
@@ -41,8 +45,10 @@ class HikariDataSourceFactory(jdbcDriver: String, jdbcPrefix: String, hostAndPor
 
         username = login
         password = pw
-        LOG.warn("[newDataSource] Creating datasource $username:${(login to pw).md5Sum}" +
-                " @ $jdbcUrlString")
+        LOG.warn(
+            "[newDataSource] Creating datasource $username:${(login to pw).md5Sum}" +
+                    " @ $jdbcUrlString"
+        )
 
     }
 
@@ -57,9 +63,9 @@ class HikariDataSourceFactory(jdbcDriver: String, jdbcPrefix: String, hostAndPor
  * @managedSchemas Default is [parent.login, "public"]. If set to [""], then [parent.login] will be used
  */
 class FlywayDataSourceFactory private constructor(
-        val parent: ISimpleDataSourceFactory, val adminLogin: String, private var adminPw: String,
-        val sqlLocations: Array<out String> = arrayOf("flyway"),
-        vararg managedSchemas: String
+    val parent: ISimpleDataSourceFactory, val adminLogin: String, private var adminPw: String,
+    val sqlLocations: Array<out String> = arrayOf("flyway"),
+    vararg managedSchemas: String
 ) : ISimpleDataSourceFactory by parent {
 
     enum class MANAGED_SCHEMA { USER, PUBLIC, USER_AND_PUBLIC }
@@ -67,24 +73,26 @@ class FlywayDataSourceFactory private constructor(
     companion object : WithLogging() {
 
         fun withSchema(
-                parent: ISimpleDataSourceFactory, adminLogin: String, adminPw: String,
-                managedSchemaType: MANAGED_SCHEMA, sqlLocations: Array<out String> = arrayOf("flyway")
+            parent: ISimpleDataSourceFactory, adminLogin: String, adminPw: String,
+            managedSchemaType: MANAGED_SCHEMA, sqlLocations: Array<out String> = arrayOf("flyway")
         ) =
-                FlywayDataSourceFactory(parent, adminLogin, adminPw, sqlLocations, *when (managedSchemaType) {
+            FlywayDataSourceFactory(
+                parent, adminLogin, adminPw, sqlLocations, *when (managedSchemaType) {
                     MANAGED_SCHEMA.USER -> arrayOf("")
                     MANAGED_SCHEMA.PUBLIC -> arrayOf("public")
                     MANAGED_SCHEMA.USER_AND_PUBLIC -> arrayOf(parent.login, "public")
-                })
+                }
+            )
 
         /**
          * @managedSchemas Default is [parent.login, "public"]. If set to [""], then [parent.login] will be used
          */
         fun withCustomSchemas(
-                parent: ISimpleDataSourceFactory, adminLogin: String, adminPw: String,
-                sqlLocations: Array<out String> = arrayOf("flyway"),
-                vararg managedSchemas: String
+            parent: ISimpleDataSourceFactory, adminLogin: String, adminPw: String,
+            sqlLocations: Array<out String> = arrayOf("flyway"),
+            vararg managedSchemas: String
         ) =
-                FlywayDataSourceFactory(parent, adminLogin, adminPw, sqlLocations, *managedSchemas)
+            FlywayDataSourceFactory(parent, adminLogin, adminPw, sqlLocations, *managedSchemas)
 
     }
 
@@ -109,8 +117,9 @@ class FlywayDataSourceFactory private constructor(
         try {
             Flyway().apply {
 
-                LOG.warn("[handleMigrations] Configuring Flyway with schemas={}; locations={}",
-                        _managedSchemas, sqlLocations
+                LOG.warn(
+                    "[handleMigrations] Configuring Flyway with schemas={}; locations={}",
+                    _managedSchemas, sqlLocations
                 )
 
                 dataSource = adminDS
@@ -124,7 +133,7 @@ class FlywayDataSourceFactory private constructor(
 
                 MDCCloseable().put("system-user", installedBy).use {
                     val deleteAll = System.getenv("FLYWAY_DELETE_ALL")
-                            .trimToDefault(System.getProperty("flyway.delete-all", "false")).toBoolean()
+                        .trimToDefault(System.getProperty("flyway.delete-all", "false")).toBoolean()
                     if (deleteAll) {
                         LOG.error("[handleMigrations] flyway.delete-all|FLYWAY_DELETE_ALL: TRUE; Cleaning the database")
                         clean()

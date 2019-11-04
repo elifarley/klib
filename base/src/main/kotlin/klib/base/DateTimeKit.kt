@@ -24,8 +24,8 @@ object DateTimeKit {
         val lzid = zoneId ?: ZoneId.systemDefault()
 
         val trans = lzid.rules.getTransition(this) ?:
-                // Normal case: only one valid offset
-                return lzid.rules.getOffset(this)
+        // Normal case: only one valid offset
+        return lzid.rules.getOffset(this)
 
         // Gap or Overlap: determine what to do from transition
         logger(javaClass).warn("[toZoneOffset] {}", trans.toString(), RuntimeException("Timezone transition found"))
@@ -55,7 +55,8 @@ object DateTimeKit {
     }
 
     @JvmOverloads
-    fun Instant.toLocalDateTime(zoneId: ZoneId? = null) = LocalDateTime.ofInstant(this, zoneId ?: ZoneId.systemDefault())!!
+    fun Instant.toLocalDateTime(zoneId: ZoneId? = null) =
+        LocalDateTime.ofInstant(this, zoneId ?: ZoneId.systemDefault())!!
 
     @JvmOverloads
     fun Date.toLocalDateTime(zoneId: ZoneId? = null) = when {
@@ -70,9 +71,10 @@ object DateTimeKit {
      * @param zoneId When null, 'ZoneId.systemDefault()' will be used. When absent, 'America/Sao_Paulo'
      * @return Now formatted as yyyyMMdd
      */
-    inline fun nowAsISODate(zoneId: String? = "America/Sao_Paulo") = ZonedDateTime.now(zoneId?.let {ZoneId.of(zoneId)} ?: ZoneId.systemDefault()).let {
-        DateTimeFormatter.BASIC_ISO_DATE.format(it).takeWhile { it != '-' }
-    }
+    inline fun nowAsISODate(zoneId: String? = "America/Sao_Paulo") =
+        ZonedDateTime.now(zoneId?.let { ZoneId.of(zoneId) } ?: ZoneId.systemDefault()).let {
+            DateTimeFormatter.BASIC_ISO_DATE.format(it).takeWhile { it != '-' }
+        }
 
     fun DateTimeFormatter.format(date: Date) = this.format(date.toInstant())!!
 

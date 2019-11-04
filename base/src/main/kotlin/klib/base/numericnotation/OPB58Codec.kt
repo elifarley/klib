@@ -73,8 +73,10 @@ object OPB58Codec {
         var st = System.currentTimeMillis()
         XSRNG.nextBytes(b)
         val rend = System.currentTimeMillis()
-        println("rnd: "
-                + (rend - st) * .001 / (bcount.toDouble() / 1024.0 / 1024.0 / 1024.0) + " s/GB")
+        println(
+            "rnd: "
+                    + (rend - st) * .001 / (bcount.toDouble() / 1024.0 / 1024.0 / 1024.0) + " s/GB"
+        )
 
         val iter = 10000000.0
 
@@ -252,7 +254,9 @@ object OPB58Codec {
 
     fun fitsSignedInt(opb58String: String): Boolean {
         val slen = opb58String.length
-        return slen < INTEGER_MAX_VALUE.length || slen == INTEGER_MAX_VALUE.length && opb58String.compareTo(INTEGER_MAX_VALUE) <= 0
+        return slen < INTEGER_MAX_VALUE.length || slen == INTEGER_MAX_VALUE.length && opb58String.compareTo(
+            INTEGER_MAX_VALUE
+        ) <= 0
 
     }
 
@@ -263,13 +267,7 @@ object OPB58Codec {
     }
 
     fun decodeToInt(opb58Number: String): Int {
-
-        if (!fitsSignedInt(opb58Number)) {
-
-            throw IllegalArgumentException(opb58Number
-                    + " is grater than the maximum signed int value: " + INTEGER_MAX_VALUE)
-        }
-
+        require(fitsSignedInt(opb58Number)) { "$opb58Number is grater than the maximum signed int value: $INTEGER_MAX_VALUE" }
         return unsafeDecodeToInt(opb58Number)
     }
 
@@ -284,13 +282,7 @@ object OPB58Codec {
     }
 
     fun decodeToLong(opb58String: String): Long {
-
-        if (!fitsSignedLong(opb58String)) {
-
-            throw IllegalArgumentException(opb58String
-                    + " is grater than the maximum signed long value: " + LONG_MAX_VALUE)
-        }
-
+        require(fitsSignedLong(opb58String)) { "$opb58String is grater than the maximum signed long value: $LONG_MAX_VALUE" }
         return unsafeDecodeToLong(opb58String)
     }
 
@@ -319,7 +311,8 @@ object OPB58Codec {
 
         for (i in 0 until opb58String.length) {
             intData = intData.multiply(ALPHABET_SIZE_AS_BIGINT).add(
-                    OPB58_DIGIT_2_BIGINT[opb58String[i] - ALPHABET_MIN_CHAR])
+                OPB58_DIGIT_2_BIGINT[opb58String[i] - ALPHABET_MIN_CHAR]
+            )
         }
 
         return intData.toByteArray()

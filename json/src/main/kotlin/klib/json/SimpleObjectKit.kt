@@ -18,10 +18,10 @@ interface ISimpleObject<T> {
 
 @JsonObject(asExtraForUnknownProperties = true)
 data class SimpleObject<T>(
-        @JsonProperty("id") override val id: T,
-        override val attrs: Map<String, JsonAny?>,
-        @JsonProperty("created") override val created: ZonedDateTime? = null,
-        @JsonProperty("updated") override val updated: ZonedDateTime? = null
+    @JsonProperty("id") override val id: T,
+    override val attrs: Map<String, JsonAny?>,
+    @JsonProperty("created") override val created: ZonedDateTime? = null,
+    @JsonProperty("updated") override val updated: ZonedDateTime? = null
 ) : ISimpleObject<T> {
 
     companion object {
@@ -34,5 +34,4 @@ data class SimpleObject<T>(
         return "SimpleObject(id='$id', attrs=$attrs" +
                 "${created.fmt(", created=%s")}${if (created == updated) "" else ", updated=$updated"})"
     }
-
 }

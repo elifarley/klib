@@ -28,11 +28,11 @@ class JsonAnyGsonTests {
     val dataJsonIter = JsonIterator.deserialize(jsonStr).asMap()
 
     @Before
-    fun before(){
+    fun before() {
     }
 
     @After
-    fun after(){
+    fun after() {
     }
 
     @Test
@@ -43,7 +43,7 @@ class JsonAnyGsonTests {
         println(zdtStrExpected)
         println(zdt.toString())
         JsonFluentAssert.assertThatJson(zdtStr)
-                .isEqualTo(zdtStrExpected)
+            .isEqualTo(zdtStrExpected)
     }
 
     @Test
@@ -57,7 +57,7 @@ class JsonAnyGsonTests {
         println("body str: " + zdt.bodyString())
         println("zdtStr: " + zdtStr)
         JsonFluentAssert.assertThatJson(zdt)
-                .isEqualTo(zdtExpected)
+            .isEqualTo(zdtExpected)
     }
 
     @Test
@@ -65,7 +65,7 @@ class JsonAnyGsonTests {
     fun `Long`() {
         val transf = JsonAnyGson.compact(JsonAnyGson.asJsonObject(JsonAny.wrap(4)))
         JsonFluentAssert.assertThatJson(transf)
-                .isEqualTo("4")
+            .isEqualTo("4")
     }
 
     @Test
@@ -73,7 +73,7 @@ class JsonAnyGsonTests {
     fun `dry run`() {
         val transf = JsonAnyGson.compact(JsonAnyGson.asJsonObject(dataJsonIter))
         JsonFluentAssert.assertThatJson(transf)
-                .isEqualTo(jsonStr)
+            .isEqualTo(jsonStr)
     }
 
 }

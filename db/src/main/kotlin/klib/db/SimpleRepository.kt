@@ -1,6 +1,7 @@
 package klib.db
 
 import klib.json.SimpleObject
+
 /*
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
@@ -38,14 +39,15 @@ abstract class FilterQuery : SimpleQuery() {
 open class SQLQuery(val isSimpleSelect: Boolean = false, val sql: String, vararg vparams: Any?) : SimpleQuery() {
     val params: Array<out Any?> = vparams
     val sqlTemplate: String? get() = if (isSimpleSelect) "select * from %s where $sql" else null
+
     companion object {
         fun byField(field: String, value: Any?) = SQLQuery(
-                false, "$field = ?", value
+            false, "$field = ?", value
         )
     }
 }
 
-class ByFieldFilterQuery(field: String, value: Any?): FilterQuery() {
+class ByFieldFilterQuery(field: String, value: Any?) : FilterQuery() {
     override val predicate: (SimpleObject<*>) -> Boolean = {
         it[field] == value
     }

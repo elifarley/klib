@@ -39,7 +39,7 @@ inline operator fun <T> Boolean?.rem(block: () -> T): T? = this?.let { if (this)
 //fun StopWatch.stopIfRunning(): StopWatch { if (!isStopped) stop(); return this }
 
 fun Random.nextInt(range: IntRange): Int = if (range.first == range.last) range.first
-    else range.first + nextInt(range.last - range.first)
+else range.first + nextInt(range.last - range.first)
 
 inline fun rnd(range: IntRange = 0..Int.MAX_VALUE) = ThreadLocalRandom.current().nextInt(range)
 

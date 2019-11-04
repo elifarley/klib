@@ -27,7 +27,8 @@ interface ISimpleObjectRestClient<PK> {
     fun post(obj: SimpleObject<PK>): String // TODO Return PK
 }
 
-abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: HttpHandler) : ISimpleObjectRestClient<PK> {
+abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: HttpHandler) :
+    ISimpleObjectRestClient<PK> {
 
     private val simpleObjectBody: BodyLens<JsonElement> = Body.json().toLens()
     private val routePOST = objPath meta { body = simpleObjectBody } bindContract Method.POST
@@ -35,28 +36,32 @@ abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: H
     private val routeGET: RouteBinder<(PK) -> HttpHandler> by lazy { objPath / objIdPath bindContract Method.GET }
 
     override fun head(id: PK): ZonedDateTime? =
-            client.performOrNull(routeHEAD.newRequest()
-                    .with(objIdPath of id), headerLastModified).let {
+        client.performOrNull(
+            routeHEAD.newRequest()
+                .with(objIdPath of id), headerLastModified
+        ).let {
 
-                if (it.first !in listOf(Status.OK, Status.NOT_FOUND)) {
-                    throw RemoteSystemProblem("Unexpected status", it.first)
-                }
-
-                it.second
+            if (it.first !in listOf(Status.OK, Status.NOT_FOUND)) {
+                throw RemoteSystemProblem("Unexpected status", it.first)
             }
+
+            it.second
+        }
 
     override operator fun get(id: PK): SimpleObject<PK>? =
-            client.performOrNull(routeGET.newRequest()
-                    .with(objIdPath of id), simpleObjectBody).let {
+        client.performOrNull(
+            routeGET.newRequest()
+                .with(objIdPath of id), simpleObjectBody
+        ).let {
 
-                if (it.first !in listOf(Status.OK, Status.NOT_FOUND)) {
-                    throw RemoteSystemProblem("Unexpected status", it.first)
-                }
-
-                it.second?.let {
-                    JsonIterator.deserialize(it.toString(), SimpleObject::class.java) as SimpleObject<PK>
-                }
+            if (it.first !in listOf(Status.OK, Status.NOT_FOUND)) {
+                throw RemoteSystemProblem("Unexpected status", it.first)
             }
+
+            it.second?.let {
+                JsonIterator.deserialize(it.toString(), SimpleObject::class.java) as SimpleObject<PK>
+            }
+        }
 
     /**
      * @return ID of inserted instance
@@ -64,7 +69,7 @@ abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: H
     override fun post(obj: SimpleObject<PK>): String = try {
 
         val cReq = routePOST.newRequest().with(
-                Body.string(ContentType.APPLICATION_JSON).toLens() of JsonStream.serialize(obj)
+            Body.string(ContentType.APPLICATION_JSON).toLens() of JsonStream.serialize(obj)
         )
         client.perform(cReq, SimpleObjectPOST.response)
 
@@ -99,7 +104,7 @@ abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: H
 
 object SimpleRepoExceptions {
 
-    class DuplicateKeyException: Exception {
+    class DuplicateKeyException : Exception {
 
         val body: String?
         val contentType: String?
@@ -109,7 +114,10 @@ object SimpleRepoExceptions {
             this.contentType = contentType
         }
 
-        constructor(message: String, cause: Throwable, body: String? = null, contentType: String? = null) : super(message, cause) {
+        constructor(message: String, cause: Throwable, body: String? = null, contentType: String? = null) : super(
+            message,
+            cause
+        ) {
             this.body = body
             this.contentType = contentType
         }

@@ -20,13 +20,15 @@ abstract class SimpleSessionFactory<T, PK>(val ds: DataSource) {
 
     protected abstract fun _newRepoSession(s: Session): SimpleSession<T, PK>
 
-    fun <R> newRepoSession(returnGeneratedKeys: Boolean = false, block: (SimpleRepository<T, PK>) -> R) = using(_newRepoSession(ds.newSession(returnGeneratedKeys))) {
-        block(it)
-    }
+    fun <R> newRepoSession(returnGeneratedKeys: Boolean = false, block: (SimpleRepository<T, PK>) -> R) =
+        using(_newRepoSession(ds.newSession(returnGeneratedKeys))) {
+            block(it)
+        }
 
 }
 
-abstract class SimpleSession<T, PK>(protected val s: Session, protected val table: String) : SimpleRepository<T, PK>, AutoCloseable {
+abstract class SimpleSession<T, PK>(protected val s: Session, protected val table: String) : SimpleRepository<T, PK>,
+    AutoCloseable {
 
     abstract val rowExtractor: (Row) -> T
 
@@ -40,12 +42,12 @@ abstract class SimpleSession<T, PK>(protected val s: Session, protected val tabl
     }
 
     override fun exists(id: PK): Boolean = byIdQuery(existsById, id)
-            .asKQuery(table).map { it.boolean(1) }.asSingle.let {
+        .asKQuery(table).map { it.boolean(1) }.asSingle.let {
         s.run(it)!!
     }
 
     override fun find(id: PK): T? = byIdQuery(selectById, id)
-            .asKQuery(table).map(rowExtractor).asSingle.let {
+        .asKQuery(table).map(rowExtractor).asSingle.let {
         s.run(it)
     }
 
@@ -81,7 +83,8 @@ abstract class SimpleSession<T, PK>(protected val s: Session, protected val tabl
 
 }
 
-open class SimpleObjectRepository<PK>(protected val sf: SimpleObjectSessionFactory<PK>) : SimpleRepository<SimpleObject<PK?>, PK> {
+open class SimpleObjectRepository<PK>(protected val sf: SimpleObjectSessionFactory<PK>) :
+    SimpleRepository<SimpleObject<PK?>, PK> {
 
     override fun exists(id: PK): Boolean = sf.newRepoSession { r ->
         r.exists(id)
@@ -105,6 +108,7 @@ open class SimpleObjectRepository<PK>(protected val sf: SimpleObjectSessionFacto
     override fun update(obj: SimpleObject<PK?>): Long = sf.newRepoSession { r ->
         r.update(obj as SimpleObject<PK>)
     }
+
     override fun update(query: SimpleQuery): Long = sf.newRepoSession { r ->
         r.update(query)
     }

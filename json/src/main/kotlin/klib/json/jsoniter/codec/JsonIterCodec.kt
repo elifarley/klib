@@ -15,7 +15,6 @@ import java.text.ParseException
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-
 object JsonIterCodec {
 
     fun registerUtcIsoZonedDateTime() {
@@ -27,7 +26,7 @@ object JsonIterCodec {
             }
 
             override fun wrap(obj: kotlin.Any?) = JsonAny.wrap(
-                    (obj as ZonedDateTime).asUTC_ISO_ZONED_DATE_TIME
+                (obj as ZonedDateTime).asUTC_ISO_ZONED_DATE_TIME
             )
         })
 
@@ -56,11 +55,13 @@ object JsonIterCodec {
                 val created = root["created"]?.`as`(ZonedDateTime::class.java)
                 val updated = root["updated"]?.`as`(ZonedDateTime::class.java)
                 root.remove("id"); root.remove("created"); root.remove("updated")
-                SimpleObject(when (id?.valueType()) {
-                    null, ValueType.NULL -> null
-                    ValueType.NUMBER -> id.toLong()
-                    else -> id.toString()
-                }, root, created, updated)
+                SimpleObject(
+                    when (id?.valueType()) {
+                        null, ValueType.NULL -> null
+                        ValueType.NUMBER -> id.toLong()
+                        else -> id.toString()
+                    }, root, created, updated
+                )
             }
         } catch (e: Exception) {
             throw JsonException(e)
@@ -100,21 +101,19 @@ object JsonIterCodec {
 
         override fun wrap(obj: Any?) = (obj as ISimpleObject<*>).let { obj ->
             val base = mapOf<String, JsonAny>(
-                    "id" to obj.id.let {
-                        when (it) {
-                            is String -> JsonAny.wrap(it)
-                            is Long -> JsonAny.wrap(it)
-                            is Int -> JsonAny.wrap(it)
-                            else -> JsonAny.wrap(it)
-                        }
-                    },
-                    "created" to JsonAny.wrap(obj.created),
-                    "updated" to JsonAny.wrap(obj.updated)
+                "id" to obj.id.let {
+                    when (it) {
+                        is String -> JsonAny.wrap(it)
+                        is Long -> JsonAny.wrap(it)
+                        is Int -> JsonAny.wrap(it)
+                        else -> JsonAny.wrap(it)
+                    }
+                },
+                "created" to JsonAny.wrap(obj.created),
+                "updated" to JsonAny.wrap(obj.updated)
             )
 
             JsonAny.wrap(obj.attrs?.plus(base) ?: base)
         }
-
     }
-
 }
