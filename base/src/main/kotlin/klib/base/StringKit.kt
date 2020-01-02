@@ -10,7 +10,7 @@ val COMMON_CHARS = ALPHANUM_CHARS + ".- ".toList()
 fun CharArray.concatToString() = String(this)
 
 fun Random.string(len: Int = 10, chars: Array<Char> = ALPHANUM_CHARS.toTypedArray()) = CharArray(len) {
-    Random.nextInt(0, ALPHANUM_CHARS.size).let(ALPHANUM_CHARS::get)
+    Random.nextInt(0, chars.size).let(chars::get)
 }.concatToString()
 
 inline fun String.prefixWith(prefix: String?) = prefix?.plus(this) ?: this
