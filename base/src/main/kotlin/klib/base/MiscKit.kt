@@ -10,31 +10,7 @@ import java.util.concurrent.ThreadLocalRandom
  * Created by elifarley on 22/11/16.
  */
 
-inline fun Any?.nullIf(nullValue: Any) = if (this == nullValue) null else this
-
-/**
- * Calls the specified function [block] with no argument and always returns `Unit`.
- */
-inline fun unit(block: () -> Any?) {
-    block()
-}
-
-/**
- * Calls the specified function [block] with `this` value as its argument and always returns `Unit`.
- */
-inline fun <T> T.unit(block: (T) -> Any?) {
-    block(this)
-}
-
-/**
- * Can be used to transform a `when` receiver into an expression, making it **exhaustive**.
- * @return `Unit`
- */
-val Any?.unit inline get() = Unit
-
 val Throwable.simpleMessage get() = "(${javaClass.simpleName}) ${message.trimToDefault(toString())}"
-
-inline operator fun <T> Boolean?.rem(block: () -> T): T? = this?.let { if (this) block() else null }
 
 //fun StopWatch.stopIfRunning(): StopWatch { if (!isStopped) stop(); return this }
 

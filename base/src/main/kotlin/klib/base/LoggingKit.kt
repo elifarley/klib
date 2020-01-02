@@ -40,6 +40,16 @@ abstract class WithLogging {
     val log: Logger by lazyLogger()
 }
 
+/**
+ * Executes the given [block], logs elapsed time and returns whatever [block] returned.
+ */
+inline fun <T> Logger.debugTime(logMessage: String? = null, block: () -> T): T = System.nanoTime().let { start ->
+    block().also {
+        if (isDebugEnabled)
+            debug("{}; ELAPSED {} ms", logMessage, 1e3 * (System.nanoTime() - start))
+    }
+}
+
 class MDCCloseable : Closeable {
 
     private val keys = mutableSetOf<String>()

@@ -1,5 +1,18 @@
 package klib.base
 
+import kotlin.random.Random
+
+val ALPHA_CHARS = ('a'..'z') + ('A'..'Z')
+val ALPHANUM_CHARS = ALPHA_CHARS + ('0'..'9')
+val COMMON_CHARS = ALPHANUM_CHARS + ".- ".toList()
+
+// TODO Remove once it gets out of experimental state in Kotlin stdlib
+fun CharArray.concatToString() = String(this)
+
+fun Random.string(len: Int = 10, chars: Array<Char> = ALPHANUM_CHARS.toTypedArray()) = CharArray(len) {
+    Random.nextInt(0, ALPHANUM_CHARS.size).let(ALPHANUM_CHARS::get)
+}.concatToString()
+
 inline fun String.prefixWith(prefix: String?) = prefix?.plus(this) ?: this
 
 fun Any?.fmt(format: String, defaultWhenNull: String = ""): String = this?.let {
@@ -20,6 +33,11 @@ fun String?.toNormalizedSpaces() = this.trimToNull()
 
 fun String?.toNormalizedLowerCase() = this.trimToNull()
     ?.toLowerCase()?.replace(illegalNameCharsLowerCase, " ")
+    ?.toNormalizedSpaces()
+
+private val notAlpha: Regex by lazy { "[^0-9a-zA-Z]+".toRegex() }
+fun String?.toNormalizedAlpha() = this
+    ?.replace(notAlpha, " ")
     ?.toNormalizedSpaces()
 
 private val noDigits: Regex by lazy { "[^0-9]+".toRegex() }
