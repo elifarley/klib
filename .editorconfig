@@ -1,0 +1,15 @@
+# https://EditorConfig.org
+# top-most EditorConfig file
+root = true
+
+[*]
+insert_final_newline=true
+
+[*.{kt,kts}]
+# See https://github.com/pinterest/ktlint/issues/527
+# See https://youtrack.jetbrains.com/issue/KT-10974
+disabled_rules=import-ordering
+
+# possible values: number (e.g. 120) (package name, imports & comments are ignored), "off"
+# it's automatically set to 100 on `ktlint --android ...` (per Android Kotlin Style Guide)
+max_line_length=off
