@@ -62,7 +62,7 @@ private fun <T> HttpHandler.performInternal(
             if (it.status.code >= 400) {
                 throw RemoteSystemProblem(
                     "${request.method} ${request.uri} (${request.body})",
-                    it.status, it.body, Header.Common.CONTENT_TYPE(it)
+                    it.status, it.body, Header.CONTENT_TYPE(it)
                 )
             }
 
@@ -72,7 +72,7 @@ private fun <T> HttpHandler.performInternal(
             } catch (e: LensFailure) {
                 throw RemoteSystemProblem(
                     "Unable to parse response", request.uri.toString(), e, Status.INTERNAL_SERVER_ERROR,
-                    it.body, Header.Common.CONTENT_TYPE(it)
+                    it.body, Header.CONTENT_TYPE(it)
                 )
             }
 

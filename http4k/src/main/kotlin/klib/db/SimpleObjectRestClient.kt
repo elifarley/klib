@@ -1,23 +1,10 @@
 package klib.db
 
-import com.google.gson.JsonElement
-import com.jsoniter.JsonIterator
-import com.jsoniter.output.JsonStream
+//import org.http4k.contract.RouteBinder
 import klib.http4k.RemoteSystemProblem
-import klib.http4k.headerLastModified
-import klib.http4k.perform
-import klib.http4k.performOrNull
 import klib.json.SimpleObject
-import org.http4k.contract.RouteBinder
-import org.http4k.contract.bindContract
-import org.http4k.contract.div
-import org.http4k.contract.meta
-import org.http4k.core.*
-import org.http4k.format.Gson.json
+import org.http4k.core.Status
 import org.http4k.lens.BiDiPathLens
-import org.http4k.lens.BodyLens
-import org.http4k.lens.Header
-import org.http4k.lens.string
 import java.time.ZonedDateTime
 
 interface ISimpleObjectRestClient<PK> {
@@ -27,6 +14,7 @@ interface ISimpleObjectRestClient<PK> {
     fun post(obj: SimpleObject<PK>): String // TODO Return PK
 }
 
+/* FIXME
 abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: HttpHandler) :
     ISimpleObjectRestClient<PK> {
 
@@ -63,9 +51,11 @@ abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: H
             }
         }
 
-    /**
-     * @return ID of inserted instance
-     */
+    */
+/**
+ * @return ID of inserted instance
+ *//*
+
     override fun post(obj: SimpleObject<PK>): String = try {
 
         val cReq = routePOST.newRequest().with(
@@ -101,6 +91,7 @@ abstract class SimpleObjectRestClient<PK>(objPath: String, private val client: H
 
     }
 }
+*/
 
 object SimpleRepoExceptions {
 

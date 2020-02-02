@@ -14,7 +14,7 @@
     <!-- see https://github.com/jitpack/jitpack.io/blob/master/BUILDING.md#multi-module-projects -->
     <groupId>com.orgecc.klib</groupId>
     <artifactId>klib-root</artifactId>
-    <version>master-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>pom</packaging>
     <name>klib</name>
     <description>Kotlin library with miscellaneous functions</description>
@@ -65,7 +65,7 @@
         <koin.version>1.0.1</koin.version>
         <slf4j.version>1.8.0-beta2</slf4j.version>
         <logback.version>1.3.0-alpha4</logback.version>
-        <http4k.version>3.38.1</http4k.version>
+        <http4k.version>3.229.0</http4k.version>
         <jsoniter.version>0.9.23</jsoniter.version>
         <junit.version>4.12</junit.version>
 
