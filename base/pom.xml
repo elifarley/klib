@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.orgecc.klib</groupId>
         <artifactId>klib-root</artifactId>
-        <version>1.3.0</version>
+        <version>master-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
