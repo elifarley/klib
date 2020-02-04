@@ -1,5 +1,7 @@
 package klib.base
 
+import java.security.SecureRandom
+import kotlin.experimental.and
 import kotlin.random.Random
 
 val ALPHA_CHARS = ('a'..'z') + ('A'..'Z')
@@ -9,9 +11,14 @@ val COMMON_CHARS = ALPHANUM_CHARS + ".- ".toList()
 // TODO Remove once it gets out of experimental state in Kotlin stdlib
 fun CharArray.concatToString() = String(this)
 
-fun Random.string(len: Int = 10, chars: Array<Char> = ALPHANUM_CHARS.toTypedArray()) = CharArray(len) {
-    Random.nextInt(0, chars.size).let(chars::get)
-}.concatToString()
+fun Random.string(len: Int = 10, chars: Array<Char> = ALPHANUM_CHARS.toTypedArray()) = ByteArray(len).let { bytes ->
+    SecureRandom().nextBytes(bytes)
+    bytes.indices.asSequence()
+        .map { i ->
+            ALPHANUM_CHARS[(bytes[i] and 0xFF.toByte() and (ALPHANUM_CHARS.size - 1).toByte()).toInt()]
+        }.toList().toCharArray().concatToString()
+
+}
 
 inline fun String.prefixWith(prefix: String?) = prefix?.plus(this) ?: this
 
