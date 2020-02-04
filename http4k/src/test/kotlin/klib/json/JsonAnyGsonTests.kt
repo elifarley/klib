@@ -9,10 +9,9 @@ import org.http4k.core.Body
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.with
-import org.junit.After
-import org.junit.Before
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 import klib.http4k.ZonedDateTimeGson.auto as zdtAuto
 
@@ -27,11 +26,11 @@ class JsonAnyGsonTests {
 
     val dataJsonIter = JsonIterator.deserialize(jsonStr).asMap()
 
-    @Before
+    @BeforeEach
     fun before() {
     }
 
-    @After
+    @AfterEach
     fun after() {
     }
 
@@ -46,8 +45,7 @@ class JsonAnyGsonTests {
             .isEqualTo(zdtStrExpected)
     }
 
-    @Test
-    @Ignore
+    //    @Test
     fun `Zoned Date Time FROM String`() {
         val zdtBody = Body.zdtAuto<ZonedDateTime>().toLens()
         val zdtExpected = ZonedDateTime.now()
@@ -60,16 +58,14 @@ class JsonAnyGsonTests {
             .isEqualTo(zdtExpected)
     }
 
-    @Test
-    @Ignore
+    //    @Test
     fun `Long`() {
         val transf = JsonAnyGson.compact(JsonAnyGson.asJsonObject(JsonAny.wrap(4)))
         JsonFluentAssert.assertThatJson(transf)
             .isEqualTo("4")
     }
 
-    @Test
-    @Ignore
+    //    @Test
     fun `dry run`() {
         val transf = JsonAnyGson.compact(JsonAnyGson.asJsonObject(dataJsonIter))
         JsonFluentAssert.assertThatJson(transf)

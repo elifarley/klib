@@ -108,41 +108,46 @@ class FlywayDataSourceFactory private constructor(
 
     private var migrationProcessed = false
 
-    private fun handleMigrations() {
+    /**
+     * Returns the number of successfully applied migrations
+     */
+    private fun handleMigrations(): Int {
 
-        if (migrationProcessed) return
+        if (migrationProcessed) return 0
 
         val adminDS = parent.with(adminLogin, adminPw)
         adminPw = ""
-        try {
-            Flyway().apply {
+        return try {
+            Flyway.configure().apply {
 
                 log.warn(
                     "[handleMigrations] Configuring Flyway with schemas={}; locations={}",
                     _managedSchemas, sqlLocations
                 )
 
-                dataSource = adminDS
-                setSchemas(*_managedSchemas)
+                dataSource(adminDS)
+                schemas(*_managedSchemas)
 //                setDataSource(jdbcUrlString, adminLogin, adminPw, "")
-                setLocations(*sqlLocations)
-                sqlMigrationSeparator = "#"
+                locations(*sqlLocations)
+                sqlMigrationSeparator("#")
 
-                installedBy = System.getProperty("user.name") + " (" + System.getProperty("os.name") + " " +
-                        System.getProperty("os.version") + ")"
+                installedBy(
+                    System.getProperty("user.name") + " (" + System.getProperty("os.name") + " " +
+                            System.getProperty("os.version") + ")"
+                )
 
-                MDCCloseable().put("system-user", installedBy).use {
+            }.load().let { flyway ->
+                MDCCloseable().put("system-user", flyway.configuration.installedBy).use {
                     val deleteAll = System.getenv("FLYWAY_DELETE_ALL")
                         .trimToDefault(System.getProperty("flyway.delete-all", "false")).toBoolean()
                     if (deleteAll) {
                         log.error("[handleMigrations] flyway.delete-all|FLYWAY_DELETE_ALL: TRUE; Cleaning the database")
-                        clean()
+                        flyway.clean()
                     }
 
                     log.warn("[handleMigrations] Migrating...")
-                    migrate()
+                    flyway.migrate()
                 }
-
 
             }
 

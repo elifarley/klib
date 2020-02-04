@@ -5,7 +5,10 @@ import com.jsoniter.output.JsonStream
 import klib.json.jsoniter.codec.JsonIterCodec
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.*
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -15,7 +18,7 @@ import java.time.format.DateTimeFormatter
 class SimpleObjectTests {
 
     companion object {
-        @BeforeClass
+        @BeforeAll
         @JvmStatic
         fun beforeClass() {
             JsonIterCodec.registerUtcIsoZonedDateTime()
@@ -46,11 +49,11 @@ class SimpleObjectTests {
         now, now
     )
 
-    @Before
+    @BeforeEach
     fun before() {
     }
 
-    @After
+    @AfterEach
     fun after() {
     }
 
@@ -74,8 +77,7 @@ class SimpleObjectTests {
             .isEqualTo(expectedJsonStr)
     }
 
-    @Test
-    @Ignore
+    //    @Test
     fun `Serialize (Wrap)`() { // FIXME Unwrap attrs
 //        Expected :<[created, email, id, misc, updated]>
 //        Actual   :<[attrs, created, id, updated]>. Missing: "email","misc" Extra: "attrs"

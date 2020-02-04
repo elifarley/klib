@@ -15,12 +15,11 @@
     <artifactId>klib-db</artifactId>
     <name>[klib-db] Database</name>
 
-    <repositories>
-        <repository>
-            <id>JCenter</id>
-            <url>http://jcenter.bintray.com/</url>
-        </repository>
-    </repositories>
+    <properties>
+        <flyway.version>6.2.1</flyway.version>
+        <hikaricp.version>3.4.2</hikaricp.version>
+        <postgresql.version>42.2.9</postgresql.version>
+    </properties>
 
     <build>
         <plugins>
@@ -53,9 +52,9 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.orgecc.klib</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>klib-base</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -73,7 +72,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.5</version>
+            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.seratch</groupId>
@@ -89,12 +88,12 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.4.2</version>
+            <version>${hikaricp.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>5.2.0</version>
+            <version>${flyway.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>

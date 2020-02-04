@@ -5,10 +5,10 @@ import jdbc.FlywayDataSourceFactory.MANAGED_SCHEMA
 import jdbc.HikariDataSourceFactory
 import jdbc.ISimpleDataSourceFactory
 import klib.base.trimToDefault
-import org.koin.dsl.module.Module
-import org.koin.dsl.module.module
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-val dsModule: Module = module {
+val dsModule = module {
 
     single {
         HikariDataSourceFactory(
@@ -19,7 +19,7 @@ val dsModule: Module = module {
             System.getenv("DB_LOGIN").trimToDefault(getProperty("db.login")),
             System.getenv("DB_PW")
         ) as ISimpleDataSourceFactory
-    }
+    } bind ISimpleDataSourceFactory::class
 
     single { (managedSchemaType: MANAGED_SCHEMA) ->
         FlywayDataSourceFactory.withSchema(
