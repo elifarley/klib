@@ -1,5 +1,6 @@
 # https://EditorConfig.org
-# See https://www.jetbrains.com/help/idea/configuring-code-style.html#editorconfig
+# IntelliJ plugin: https://www.jetbrains.com/help/idea/configuring-code-style.html#editorconfig
+# Maven plugin: https://mvnrepository.com/artifact/org.ec4j.maven/editorconfig-maven-plugin
 
 # top-most EditorConfig file
 root = true
