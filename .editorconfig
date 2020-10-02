@@ -1,4 +1,6 @@
 # https://EditorConfig.org
+# See https://www.jetbrains.com/help/idea/configuring-code-style.html#editorconfig
+
 # top-most EditorConfig file
 root = true
 
