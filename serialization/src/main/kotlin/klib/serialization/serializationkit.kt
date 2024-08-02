@@ -130,7 +130,13 @@ private fun decodeValue(value: String): Any = when {
         'L' -> value.substring(2).toULong()
         'f' -> value.substring(2).toFloat()
         'd' -> value.substring(2).toDouble()
-        '+' -> when (value) // TODO
+        '+' -> when {
+            value.length < 4 -> value
+            else -> when (value[2]) {
+                'I' -> value.substring(3).toBigInteger()
+                'D' -> value.substring(3).toBigDecimal()
+            }
+        }
         else -> throw IllegalArgumentException("Unknown type prefix in: $value")
     }
 
