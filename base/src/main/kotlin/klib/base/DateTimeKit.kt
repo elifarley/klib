@@ -79,3 +79,79 @@ object DateTimeKit {
     fun DateTimeFormatter.format(date: Date) = this.format(date.toInstant())!!
 
 }
+
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
+import java.time.Duration
+import java.time.Instant
+import kotlin.math.pow
+
+private val dateTimeFormatterUTC = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC)
+
+@Suppress("MagicNumber")
+@JvmInline
+value class InstantWithDuration(private val packedValue: Long) {
+
+    init {
+        require(packedValue >= 0) { "PackedValue must be non-negative" }
+        require(packedValue shr (63 - BITS_FOR_DURATION) == 0L) { "StartEpochSeconds out of range" }
+        require(durationMinutes <= MAX_DURATION_MINUTES) { "Duration must be at most $MAX_DURATION_MINUTES" }
+    }
+
+    val startEpochSeconds: Long
+        get() = EPOCH_2020 + (packedValue shr BITS_FOR_DURATION)
+
+    val startInstant
+        get() = Instant.ofEpochSecond(startEpochSeconds)
+
+    val durationMinutes: UShort
+        get() = (packedValue and DURATION_MASK).toUShort()
+
+    val duration
+        get() = Duration.ofMinutes(durationMinutes.toLong())
+
+    val endEpochSeconds: Long
+        get() = startEpochSeconds + durationMinutes.toLong() * 60
+
+    val endInstant
+        get() = Instant.ofEpochSecond(endEpochSeconds)
+
+    val startFormatted get() = dateTimeFormatterUTC.format(startInstant)
+    val endFormatted get() = dateTimeFormatterUTC.format(endInstant)
+
+    override fun toString() = "${durationMinutes}m @ $startFormatted"
+
+    @JsonValue
+    fun toShortString() = packedValue.toString(36).padStart(6, '0')
+
+    companion object {
+        const val EPOCH_2020 = 1577836800L
+        const val BITS_FOR_DURATION = 11
+        val MAX_DURATION_MINUTES: UShort get() = (2.0.pow(BITS_FOR_DURATION).toUInt() - 1u).toUShort()
+        const val DURATION_MASK = (1L shl BITS_FOR_DURATION) - 1
+        const val MAX_SECONDS = (1L shl (63 - BITS_FOR_DURATION)) - 1
+
+        @JsonCreator
+        @JvmStatic
+        fun fromShortString(value: String) = InstantWithDuration(value.toLong(36))
+
+        fun fromStartAndEnd(start: Instant, end: Instant): InstantWithDuration {
+            require(end >= start) { "End time must not be before start time" }
+            val durationMinutes = Duration.between(start, end).toMinutes().toInt()
+            return fromStartAndDuration(start, durationMinutes)
+        }
+
+        fun fromStartAndDuration(start: String, durationMinutes: Int = 0) =
+            fromStartAndDuration(Instant.parse(start), durationMinutes)
+
+        fun fromStartAndDuration(start: Instant, durationMinutes: Int = 0) =
+            fromStartAndDuration(start.epochSecond, durationMinutes)
+
+        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: Int = 0): InstantWithDuration {
+            require(durationMinutes >= 0) { "Duration must be non-negative" }
+            return InstantWithDuration(
+                ((startEpochSeconds - EPOCH_2020).toInt().toLong() shl BITS_FOR_DURATION) or durationMinutes.toLong()
+            )
+        }
+    }
+}
