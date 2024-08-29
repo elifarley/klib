@@ -82,11 +82,19 @@ object DateTimeKit {
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
+import klib.base.ShortString.asShortString
+import klib.base.ShortString.shortStringAsLong
 import java.time.Duration
 import java.time.Instant
 import kotlin.math.pow
 
 private val dateTimeFormatterUTC = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC)
+
+@Suppress("MagicNumber")
+object ShortString {
+    val Long.asShortString get() = toString(36).padStart(6, '0')
+    val String.shortStringAsLong get() = toLong(36)
+}
 
 @Suppress("MagicNumber")
 @JvmInline
@@ -121,8 +129,8 @@ value class InstantWithDuration(private val packedValue: Long) {
 
     override fun toString() = "${durationMinutes}m @ $startFormatted"
 
-    @JsonValue
-    fun toShortString() = packedValue.toString(36).padStart(6, '0')
+    @get:JsonValue
+    val asShortString get() = packedValue.asShortString
 
     companion object {
         const val EPOCH_2020 = 1577836800L
@@ -133,22 +141,21 @@ value class InstantWithDuration(private val packedValue: Long) {
 
         @JsonCreator
         @JvmStatic
-        fun fromShortString(value: String) = InstantWithDuration(value.toLong(36))
+        fun fromShortString(value: String) = InstantWithDuration(value.shortStringAsLong)
 
         fun fromStartAndEnd(start: Instant, end: Instant): InstantWithDuration {
             require(end >= start) { "End time must not be before start time" }
-            val durationMinutes = Duration.between(start, end).toMinutes().toInt()
+            val durationMinutes = Duration.between(start, end).toMinutes().toUShort()
             return fromStartAndDuration(start, durationMinutes)
         }
 
-        fun fromStartAndDuration(start: String, durationMinutes: Int = 0) =
+        fun fromStartAndDuration(start: String, durationMinutes: UShort = 0u) =
             fromStartAndDuration(Instant.parse(start), durationMinutes)
 
-        fun fromStartAndDuration(start: Instant, durationMinutes: Int = 0) =
+        fun fromStartAndDuration(start: Instant, durationMinutes: UShort = 0u) =
             fromStartAndDuration(start.epochSecond, durationMinutes)
 
-        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: Int = 0): InstantWithDuration {
-            require(durationMinutes >= 0) { "Duration must be non-negative" }
+        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: UShort = 0u): InstantWithDuration {
             return InstantWithDuration(
                 ((startEpochSeconds - EPOCH_2020).toInt().toLong() shl BITS_FOR_DURATION) or durationMinutes.toLong()
             )
