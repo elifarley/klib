@@ -62,24 +62,31 @@ class InstantWithDurationTest {
     }
 
     @Test
-    fun `endEpochSeconds - Year 2120, max duration`() {
-        val epoch2120 = 4733510400L
+    fun `Maximum representable values`() {
         val instantWithDuration = InstantWithDuration.fromStartAndDuration(
-            epoch2120,
-            MAX_DURATION_MINUTES
+            EPOCH_2020 + INSTANT_SECONDS_MASK, MAX_DURATION_MINUTES
         )
-        assertEquals("2120-01-01T00:00:00Z", instantWithDuration.startFormatted, "startFormatted")
-        assertEquals("2247-08-06T09:03:00Z", instantWithDuration.endFormatted, "endFormatted")
-        assertEquals(
-            epoch2120,
-            instantWithDuration.startEpochSeconds,
-            "startEpochSeconds"
-        )
-        assertEquals(
-            epoch2120 + MAX_DURATION_MINUTES.toLong() * 60,
-            instantWithDuration.endEpochSeconds,
-            "endEpochSeconds"
-        )
+        assertEquals("6375-04-08T15:04:31Z", instantWithDuration.startFormatted, "startFormatted")
+        assertEquals("6502-11-12T00:07:31Z", instantWithDuration.endFormatted, "endFormatted")
+        assertEquals(EPOCH_2020 + INSTANT_SECONDS_MASK, instantWithDuration.startEpochSeconds, "startEpochSeconds")
+        assertEquals(143043322051, instantWithDuration.endEpochSeconds, "endEpochSeconds")
+    }
+
+    @Test
+    fun `constructor throws IllegalArgumentException for values exceeding maximum`() {
+        assertThrows<IllegalArgumentException>("Start") {
+            InstantWithDuration.fromStartAndDuration(
+                EPOCH_2020 + INSTANT_SECONDS_MASK + 1,
+                0u
+            )
+        }
+
+        assertThrows<IllegalArgumentException>("Duration") {
+            InstantWithDuration.fromStartAndDuration(
+                EPOCH_2020,
+                MAX_DURATION_MINUTES + 1u
+            )
+        }
     }
 
     @ParameterizedTest
