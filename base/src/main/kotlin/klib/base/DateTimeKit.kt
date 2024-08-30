@@ -102,15 +102,19 @@ object ShortString {
 value class InstantWithDuration(internal val packedValue: Long) : Comparable<InstantWithDuration> {
 
     init {
-        require(packedValue shr (63 - BITS_FOR_DURATION) == 0L) { "StartEpochSeconds out of range" }
-        require(durationMinutes <= MAX_DURATION_MINUTES) { "Duration must be at most $MAX_DURATION_MINUTES" }
+        require((packedValue shr BITS_FOR_DURATION) <= INSTANT_SECONDS_MASK) {
+            "StartEpochSeconds out of range (${(packedValue shr BITS_FOR_DURATION) + EPOCH_2020})"
+        }
+        require(durationMinutes <= MAX_DURATION_MINUTES) {
+            "Max duration minutes exceeded by ${durationMinutes - MAX_DURATION_MINUTES}"
+        }
     }
 
     val startEpochSeconds: Long
         get() = EPOCH_2020 + (packedValue shr BITS_FOR_DURATION)
 
-    val durationMinutes: UShort
-        get() = (packedValue and DURATION_MINUTES_MASK).toUShort()
+    val durationMinutes: UInt
+        get() = (packedValue and DURATION_MINUTES_MASK).toUInt()
 
     @get:JsonValue
     val asShortString get() = packedValue.asShortString
@@ -121,10 +125,10 @@ value class InstantWithDuration(internal val packedValue: Long) : Comparable<Ins
 
     companion object {
         const val EPOCH_2020 = 1577836800L
-        const val BITS_FOR_DURATION = 11
+        const val BITS_FOR_DURATION = 26 // 127.7 years
         const val DURATION_MINUTES_MASK: Long = (1L shl BITS_FOR_DURATION) - 1
-        val MAX_DURATION_MINUTES: UShort = DURATION_MINUTES_MASK.toUShort()
-        const val INSTANT_SECONDS_MASK = (1L shl (63 - BITS_FOR_DURATION)) - 1
+        val MAX_DURATION_MINUTES: UInt = DURATION_MINUTES_MASK.toUInt()
+        const val INSTANT_SECONDS_MASK = (1L shl (63 - BITS_FOR_DURATION)) - 1 // 8716 years
 
         @JsonCreator
         @JvmStatic
@@ -135,22 +139,25 @@ value class InstantWithDuration(internal val packedValue: Long) : Comparable<Ins
 
         fun fromStartAndEnd(start: Instant, end: Instant): InstantWithDuration {
             require(end >= start) { "End time must not be before start time" }
-            val durationMinutes = Duration.between(start, end).toMinutes().toUShort()
+            val durationMinutes = Duration.between(start, end).toMinutes().toUInt()
             return fromStartAndDuration(start, durationMinutes)
         }
 
-        fun fromStartAndDuration(start: String, durationMinutes: UShort = 0u) =
+        fun fromStartAndDuration(start: String, durationMinutes: UInt = 0u) =
             fromStartAndDuration(Instant.parse(start), durationMinutes)
 
-        fun fromStartAndDuration(start: Instant, durationMinutes: UShort = 0u) =
+        fun fromStartAndDuration(start: Instant, durationMinutes: UInt = 0u) =
             fromStartAndDuration(start.epochSecond, durationMinutes)
 
-        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: UShort = 0u): InstantWithDuration {
+        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: UInt = 0u): InstantWithDuration {
             require(durationMinutes <= MAX_DURATION_MINUTES) {
                 "Max duration minutes exceeded by ${durationMinutes - MAX_DURATION_MINUTES}"
             }
             require(startEpochSeconds >= EPOCH_2020) {
                 "Min startEpochSeconds should be increased by ${EPOCH_2020 - startEpochSeconds}"
+            }
+            require(startEpochSeconds <= EPOCH_2020 + INSTANT_SECONDS_MASK) {
+                "Max startEpochSeconds exceeded by ${startEpochSeconds - (EPOCH_2020 + INSTANT_SECONDS_MASK)}"
             }
             return InstantWithDuration(
                 ((startEpochSeconds - EPOCH_2020) shl BITS_FOR_DURATION) or durationMinutes.toLong()
