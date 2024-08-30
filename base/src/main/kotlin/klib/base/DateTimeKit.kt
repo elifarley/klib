@@ -90,7 +90,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-
 @Suppress("MagicNumber")
 object ShortString {
     val Long.asShortString get() = toString(36).padStart(6, '0')
@@ -128,7 +127,7 @@ value class InstantWithDuration(internal val packedValue: Long) : Comparable<Ins
         const val BITS_FOR_DURATION = 26 // 127.7 years
         const val DURATION_MINUTES_MASK: Long = (1L shl BITS_FOR_DURATION) - 1
         val MAX_DURATION_MINUTES: UInt = DURATION_MINUTES_MASK.toUInt()
-        const val INSTANT_SECONDS_MASK = (1L shl (63 - BITS_FOR_DURATION)) - 1 // 8716 years
+        const val INSTANT_SECONDS_MASK = (1L shl (63 - BITS_FOR_DURATION)) - 1 // 4358 future years
 
         @JsonCreator
         @JvmStatic
