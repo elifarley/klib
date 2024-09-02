@@ -34,6 +34,7 @@ class InstantWithDurationTest {
 
     @ParameterizedTest
     @CsvSource(
+        "2019-12-31T23:58:00Z, 2019-12-31T23:59:00Z, 1",
         "2020-01-01T00:00:00Z, 2020-01-01T00:00:00Z, 0",
         "2025-08-01T10:00:00Z, 2025-08-01T10:05:00Z, 5",
         "2025-08-01T10:00:00Z, 2025-08-01T10:30:00Z, 30",
@@ -67,6 +68,7 @@ class InstantWithDurationTest {
 
     @ParameterizedTest
     @CsvSource(
+        "${EPOCH_2020 - 1}, 0, -13ydj4",
         "$EPOCH_2020, 0, 000000",
         "$EPOCH_2020, 1, 000001",
         "$EPOCH_2020, $DURATION_MINUTES_MASK, 13ydj3",
@@ -88,10 +90,22 @@ class InstantWithDurationTest {
     }
 
     @Test
-    fun `'endEpochSeconds' - minimum valid values`() {
+    fun `'endEpochSeconds' for EPOCH_2020`() {
         val instantWithDuration = InstantWithDuration.fromStartAndDuration(EPOCH_2020)
         assertEquals(
             EPOCH_2020,
+            instantWithDuration.endEpochSeconds,
+            "endEpochSeconds"
+        )
+    }
+
+    @Test
+    fun `'endEpochSeconds' for EPOCH_2020 minus 2 minutes`() {
+        val instantWithDuration = InstantWithDuration.fromStartAndDuration(
+            EPOCH_2020 - 120, 1u
+        )
+        assertEquals(
+            EPOCH_2020 - 60,
             instantWithDuration.endEpochSeconds,
             "endEpochSeconds"
         )
@@ -149,7 +163,7 @@ class InstantWithDurationTest {
 
     @ParameterizedTest
     @CsvSource(
-        "$EPOCH_2020,        0, '2020-01-01T00:00:00Z'",
+        "${EPOCH_2020 - 1},  0, '2019-12-31T23:59:59Z'",
         "$EPOCH_2020,        1, '2020-01-01T00:01:00Z'",
         "${EPOCH_2020 + 60}, 0, '2020-01-01T00:01:00Z'",
         "$EPOCH_2020,     2047, '2020-01-02T10:07:00Z'",
