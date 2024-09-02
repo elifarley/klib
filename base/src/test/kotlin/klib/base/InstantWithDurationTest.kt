@@ -34,13 +34,46 @@ class InstantWithDurationTest {
 
     @ParameterizedTest
     @CsvSource(
+        "2020-01-01T00:00:00Z, 2020-01-01T00:00:00Z, 0",
+        "2025-08-01T10:00:00Z, 2025-08-01T10:05:00Z, 5",
+        "2025-08-01T10:00:00Z, 2025-08-01T10:30:00Z, 30",
+        "2025-08-01T10:00:00Z, 2025-08-01T11:00:00Z, 60",
+        "6375-04-08T15:04:31Z, 6502-11-12T00:07:31Z, $DURATION_MINUTES_MASK"
+    )
+    @DisplayName("Factory methods")
+    fun testFromStartFactory(start: String, end: String, expectedDurationMinutes: UInt) {
+        InstantWithDuration.fromStartAndEnd(start, end).run {
+            assertEquals(start, startFormatted)
+            assertEquals(end, endFormatted)
+            assertEquals(expectedDurationMinutes, durationMinutes, "fromStartAndEnd")
+        }
+        InstantWithDuration.fromStartAndDuration(start, expectedDurationMinutes).run {
+            assertEquals(start, startFormatted)
+            assertEquals(end, endFormatted)
+            assertEquals(expectedDurationMinutes, durationMinutes, "fromStartAndDuration")
+        }
+    }
+
+    @Test
+    @DisplayName("'fromStartAndEnd' throws IllegalArgumentException when end is before start")
+    fun testFromStartAndEndThrowsException() {
+        val start = "2025-08-01T09:00:01Z"
+        val end = "2025-08-01T09:00:00Z"
+
+        assertThrows<IllegalArgumentException> {
+            InstantWithDuration.fromStartAndEnd(start, end)
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
         "$EPOCH_2020, 0, 000000",
         "$EPOCH_2020, 1, 000001",
         "$EPOCH_2020, $DURATION_MINUTES_MASK, 13ydj3",
         "${EPOCH_2020 + 60}, 0, 1ulajuo",
         "${EPOCH_2020 + INSTANT_SECONDS_MASK}, $DURATION_MINUTES_MASK, 1y2p0ij32e8e7",
     )
-    @DisplayName("Roundtrip conversion maintains values")
+    @DisplayName("Roundtrip (asShortString -> fromShortString)")
     fun roundTrip(
         startEpochSeconds: Long,
         durationMinutes: UInt,
@@ -73,6 +106,8 @@ class InstantWithDurationTest {
         assertEquals("6502-11-12T00:07:31Z", instantWithDuration.endFormatted, "endFormatted")
         assertEquals(EPOCH_2020 + INSTANT_SECONDS_MASK, instantWithDuration.startEpochSeconds, "startEpochSeconds")
         assertEquals(143043322051, instantWithDuration.endEpochSeconds, "endEpochSeconds")
+        assertEquals(DURATION_MINUTES_MASK.toUInt(), instantWithDuration.durationMinutes, "durationMinutes")
+        assertEquals(DURATION_MINUTES_MASK, instantWithDuration.duration.toMinutes(), "duration")
     }
 
     @Test
@@ -139,7 +174,7 @@ class InstantWithDurationTest {
         val later = InstantWithDuration.fromStartAndDuration(EPOCH_2020, 60u)
         val sameEndAsLater = InstantWithDuration.fromStartAndDuration(EPOCH_2020 + 1800, 30u)
 
-        assertEquals(later.endFormatted , sameEndAsLater.endFormatted)
+        assertEquals(later.endFormatted, sameEndAsLater.endFormatted)
         assert(earlier < later)
         assert(later > earlier)
         assert(earlier < sameEndAsLater)
