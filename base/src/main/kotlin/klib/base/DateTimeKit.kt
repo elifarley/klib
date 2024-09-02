@@ -152,8 +152,10 @@ value class InstantWithDuration(internal val packedValue: Long) : Comparable<Ins
             require(durationMinutes <= MAX_DURATION_MINUTES) {
                 "Max duration minutes exceeded by ${durationMinutes - MAX_DURATION_MINUTES}"
             }
-            require(startEpochSeconds >= EPOCH_2020) {
-                "Min startEpochSeconds should be increased by ${EPOCH_2020 - startEpochSeconds}"
+            require(startEpochSeconds >= EPOCH_2020 - INSTANT_SECONDS_MASK + 1) {
+                "Min startEpochSeconds should be increased by ${
+                    EPOCH_2020 - INSTANT_SECONDS_MASK + 1 - startEpochSeconds
+                }"
             }
             require(startEpochSeconds <= EPOCH_2020 + INSTANT_SECONDS_MASK) {
                 "Max startEpochSeconds exceeded by ${startEpochSeconds - (EPOCH_2020 + INSTANT_SECONDS_MASK)}"
