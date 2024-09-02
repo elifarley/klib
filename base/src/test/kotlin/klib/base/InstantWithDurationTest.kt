@@ -7,10 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.assertEquals
 
+@DisplayName("InstantWithDuration")
 class InstantWithDurationTest {
 
     @Test
-    fun `constructor with startEpochSeconds and durationMinutes creates correct packedValue`() {
+    fun `Constructor with startEpochSeconds and durationMinutes creates correct packedValue`() {
         val instantWithDuration = InstantWithDuration
             .fromStartAndDuration(EPOCH_2020, MAX_DURATION_MINUTES)
         assertEquals("2020-01-01T00:00:00Z", instantWithDuration.startFormatted, "startFormatted")
@@ -25,7 +26,7 @@ class InstantWithDurationTest {
     }
 
     @Test
-    fun `constructor with packedValue creates correct startEpochSeconds and durationMinutes`() {
+    fun `Constructor with packedValue creates correct startEpochSeconds and durationMinutes`() {
         val instantWithDuration = InstantWithDuration(0x7ffL or DURATION_MINUTES_MASK)
         assertEquals(EPOCH_2020, instantWithDuration.startEpochSeconds)
         assertEquals(MAX_DURATION_MINUTES, instantWithDuration.durationMinutes)
@@ -37,22 +38,24 @@ class InstantWithDurationTest {
         "$EPOCH_2020, 1, 000001",
         "$EPOCH_2020, $DURATION_MINUTES_MASK, 13ydj3",
         "${EPOCH_2020 + 60}, 0, 1ulajuo",
+        "${EPOCH_2020 + INSTANT_SECONDS_MASK}, $DURATION_MINUTES_MASK, 1y2p0ij32e8e7",
     )
-    fun `roundtrip conversion maintains values`(
+    @DisplayName("Roundtrip conversion maintains values")
+    fun roundTrip(
         startEpochSeconds: Long,
         durationMinutes: UInt,
         expectedShortString: String
     ) {
-        val instantWithDuration1 = InstantWithDuration.fromStartAndDuration(startEpochSeconds, durationMinutes)
-        assertEquals(expectedShortString, instantWithDuration1.asShortString)
-
-        val instantWithDuration2 = InstantWithDuration.fromShortString(expectedShortString)
-        assertEquals(startEpochSeconds, instantWithDuration2.startEpochSeconds)
-        assertEquals(durationMinutes, instantWithDuration2.durationMinutes)
+        val encodedString = InstantWithDuration.fromStartAndDuration(startEpochSeconds, durationMinutes).asShortString
+        InstantWithDuration.fromShortString(encodedString).also { decoded ->
+            assertEquals(startEpochSeconds, decoded.startEpochSeconds)
+            assertEquals(durationMinutes, decoded.durationMinutes)
+        }
+        assertEquals(expectedShortString, encodedString)
     }
 
     @Test
-    fun `endEpochSeconds - minimum valid values`() {
+    fun `'endEpochSeconds' - minimum valid values`() {
         val instantWithDuration = InstantWithDuration.fromStartAndDuration(EPOCH_2020)
         assertEquals(
             EPOCH_2020,
@@ -73,7 +76,7 @@ class InstantWithDurationTest {
     }
 
     @Test
-    fun `constructor throws IllegalArgumentException for values exceeding maximum`() {
+    fun `Constructor throws IllegalArgumentException for values exceeding maximum`() {
         assertThrows<IllegalArgumentException>("Start") {
             InstantWithDuration.fromStartAndDuration(
                 EPOCH_2020 + INSTANT_SECONDS_MASK + 1,
@@ -97,7 +100,8 @@ class InstantWithDurationTest {
         "$EPOCH_2020, $DURATION_MINUTES_MASK, '67108863m @ 2020-01-01T00:00:00Z'",
         "${EPOCH_2020 + 60}, 0, '0m @ 2020-01-01T00:01:00Z'",
     )
-    fun `toShortString() for various inputs`(
+    @DisplayName("'toShortString()' for various inputs")
+    fun `toShortString()`(
         startEpochSeconds: Long,
         durationMinutes: UInt,
         expected: String
@@ -117,19 +121,20 @@ class InstantWithDurationTest {
         "$EPOCH_2020,  $DURATION_MINUTES_MASK,          '2147-08-06T09:03:00Z'",
         "${EPOCH_2020 + DURATION_MINUTES_MASK * 60}, 0, '2147-08-06T09:03:00Z'",
     )
-    fun `'endFormatted' for various inputs`(
+    @DisplayName("'endFormatted' for various inputs")
+    fun endFormatted(
         startEpochSeconds: Long,
         durationMinutes: UInt,
-        expected: String
+        expectedEnd: String
     ) {
         assertEquals(
-            expected,
+            expectedEnd,
             InstantWithDuration.fromStartAndDuration(startEpochSeconds, durationMinutes).endFormatted
         )
     }
 
     @Test
-    fun `compareTo works correctly`() {
+    fun `'compareTo' works correctly`() {
         val earlier = InstantWithDuration.fromStartAndDuration(EPOCH_2020, 30u)
         val later = InstantWithDuration.fromStartAndDuration(EPOCH_2020, 60u)
         val sameEndAsLater = InstantWithDuration.fromStartAndDuration(EPOCH_2020 + 1800, 30u)
