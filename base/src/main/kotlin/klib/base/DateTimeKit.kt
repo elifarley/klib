@@ -124,7 +124,7 @@ value class InstantWithDuration(internal val packedValue: Long) : Comparable<Ins
 
     companion object {
         const val EPOCH_2020 = 1577836800L
-        const val BITS_FOR_DURATION = 26 // 127.7 years
+        const val BITS_FOR_DURATION = 26 // 127.7 years or 67_108_863 minutes
         const val DURATION_MINUTES_MASK: Long = (1L shl BITS_FOR_DURATION) - 1
         val MAX_DURATION_MINUTES: UInt = DURATION_MINUTES_MASK.toUInt()
         const val INSTANT_SECONDS_MASK = (1L shl (63 - BITS_FOR_DURATION)) - 1 // 4358 future years
