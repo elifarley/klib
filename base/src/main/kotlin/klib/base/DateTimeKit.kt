@@ -80,15 +80,15 @@ object DateTimeKit {
 
 }
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonValue
 import klib.base.ShortString.asShortString
 import klib.base.ShortString.shortStringAsLong
+
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 import java.time.Duration
 import java.time.Instant
-import kotlin.math.pow
-
-private val dateTimeFormatterUTC = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC)
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Suppress("MagicNumber")
 object ShortString {
@@ -98,67 +98,90 @@ object ShortString {
 
 @Suppress("MagicNumber")
 @JvmInline
-value class InstantWithDuration(private val packedValue: Long) {
+value class InstantWithDuration(internal val packedValue: Long) : Comparable<InstantWithDuration> {
 
     init {
-        require(packedValue >= 0) { "PackedValue must be non-negative" }
-        require(packedValue shr (63 - BITS_FOR_DURATION) == 0L) { "StartEpochSeconds out of range" }
-        require(durationMinutes <= MAX_DURATION_MINUTES) { "Duration must be at most $MAX_DURATION_MINUTES" }
+        require((packedValue shr BITS_FOR_DURATION) <= INSTANT_SECONDS_MASK) {
+            "StartEpochSeconds out of range (${(packedValue shr BITS_FOR_DURATION) + EPOCH_2020})"
+        }
+        require(durationMinutes <= MAX_DURATION_MINUTES) {
+            "Max duration minutes exceeded by ${durationMinutes - MAX_DURATION_MINUTES}"
+        }
     }
 
     val startEpochSeconds: Long
         get() = EPOCH_2020 + (packedValue shr BITS_FOR_DURATION)
 
-    val startInstant
-        get() = Instant.ofEpochSecond(startEpochSeconds)
-
-    val durationMinutes: UShort
-        get() = (packedValue and DURATION_MASK).toUShort()
-
-    val duration
-        get() = Duration.ofMinutes(durationMinutes.toLong())
-
-    val endEpochSeconds: Long
-        get() = startEpochSeconds + durationMinutes.toLong() * 60
-
-    val endInstant
-        get() = Instant.ofEpochSecond(endEpochSeconds)
-
-    val startFormatted get() = dateTimeFormatterUTC.format(startInstant)
-    val endFormatted get() = dateTimeFormatterUTC.format(endInstant)
-
-    override fun toString() = "${durationMinutes}m @ $startFormatted"
+    val durationMinutes: UInt
+        get() = (packedValue and DURATION_MINUTES_MASK).toUInt()
 
     @get:JsonValue
     val asShortString get() = packedValue.asShortString
 
+    override fun toString() = "${durationMinutes}m @ $startFormatted"
+
+    override fun compareTo(other: InstantWithDuration): Int = packedValue.compareTo(other.packedValue)
+
     companion object {
         const val EPOCH_2020 = 1577836800L
-        const val BITS_FOR_DURATION = 11
-        val MAX_DURATION_MINUTES: UShort get() = (2.0.pow(BITS_FOR_DURATION).toUInt() - 1u).toUShort()
-        const val DURATION_MASK = (1L shl BITS_FOR_DURATION) - 1
-        const val MAX_SECONDS = (1L shl (63 - BITS_FOR_DURATION)) - 1
+        const val BITS_FOR_DURATION = 26 // 127.7 years or 67_108_863 minutes
+        const val DURATION_MINUTES_MASK: Long = (1L shl BITS_FOR_DURATION) - 1
+        val MAX_DURATION_MINUTES: UInt = DURATION_MINUTES_MASK.toUInt()
+        const val INSTANT_SECONDS_MASK = (1L shl (63 - BITS_FOR_DURATION)) - 1 // 4358 future years
 
         @JsonCreator
         @JvmStatic
         fun fromShortString(value: String) = InstantWithDuration(value.shortStringAsLong)
 
+        fun fromStartAndEnd(start: String, end: String) =
+            fromStartAndEnd(Instant.parse(start), Instant.parse(end))
+
         fun fromStartAndEnd(start: Instant, end: Instant): InstantWithDuration {
             require(end >= start) { "End time must not be before start time" }
-            val durationMinutes = Duration.between(start, end).toMinutes().toUShort()
+            val durationMinutes = Duration.between(start, end).toMinutes().toUInt()
             return fromStartAndDuration(start, durationMinutes)
         }
 
-        fun fromStartAndDuration(start: String, durationMinutes: UShort = 0u) =
+        fun fromStartAndDuration(start: String, durationMinutes: UInt = 0u) =
             fromStartAndDuration(Instant.parse(start), durationMinutes)
 
-        fun fromStartAndDuration(start: Instant, durationMinutes: UShort = 0u) =
+        fun fromStartAndDuration(start: Instant, durationMinutes: UInt = 0u) =
             fromStartAndDuration(start.epochSecond, durationMinutes)
 
-        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: UShort = 0u): InstantWithDuration {
+        fun fromStartAndDuration(startEpochSeconds: Long, durationMinutes: UInt = 0u): InstantWithDuration {
+            require(durationMinutes <= MAX_DURATION_MINUTES) {
+                "Max duration minutes exceeded by ${durationMinutes - MAX_DURATION_MINUTES}"
+            }
+            require(startEpochSeconds >= EPOCH_2020 - INSTANT_SECONDS_MASK + 1) {
+                "Min startEpochSeconds should be increased by ${
+                    EPOCH_2020 - INSTANT_SECONDS_MASK + 1 - startEpochSeconds
+                }"
+            }
+            require(startEpochSeconds <= EPOCH_2020 + INSTANT_SECONDS_MASK) {
+                "Max startEpochSeconds exceeded by ${startEpochSeconds - (EPOCH_2020 + INSTANT_SECONDS_MASK)}"
+            }
             return InstantWithDuration(
-                ((startEpochSeconds - EPOCH_2020).toInt().toLong() shl BITS_FOR_DURATION) or durationMinutes.toLong()
+                ((startEpochSeconds - EPOCH_2020) shl BITS_FOR_DURATION) or durationMinutes.toLong()
             )
         }
     }
 }
+
+val InstantWithDuration.startInstant
+    get() = Instant.ofEpochSecond(startEpochSeconds)
+
+val InstantWithDuration.duration
+    get() = Duration.ofMinutes(durationMinutes.toLong())
+
+@Suppress("MagicNumber")
+val InstantWithDuration.endEpochSeconds: Long
+    get() = startEpochSeconds + durationMinutes.toLong() * 60
+
+val InstantWithDuration.endInstant
+    get() = Instant.ofEpochSecond(endEpochSeconds)
+
+private val dateTimeFormatterUTC = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    .withZone(ZoneOffset.UTC)
+
+val InstantWithDuration.startFormatted get() = dateTimeFormatterUTC.format(startInstant)
+val InstantWithDuration.endFormatted get() = dateTimeFormatterUTC.format(endInstant)
